@@ -1,0 +1,225 @@
+{
+  "browser": "Installed Chromium (Edge)",
+  "url": "http://127.0.0.1:5173/",
+  "checks": [
+    {
+      "name": "Homepage responsive 1440px",
+      "width": 1440,
+      "clientWidth": 1425,
+      "scrollWidth": 1425,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "324.25px 324.25px 324.25px 324.25px",
+      "productColumns": "321.25px 321.25px 321.25px 321.25px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 1280px",
+      "width": 1280,
+      "clientWidth": 1265,
+      "scrollWidth": 1265,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "284.25px 284.25px 284.25px 284.25px",
+      "productColumns": "281.25px 281.25px 281.25px 281.25px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 1024px",
+      "width": 1024,
+      "clientWidth": 1009,
+      "scrollWidth": 1009,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "466.5px 466.5px",
+      "productColumns": "466.5px 466.5px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 768px",
+      "width": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "338.5px 338.5px",
+      "productColumns": "338.5px 338.5px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 390px",
+      "width": 390,
+      "clientWidth": 375,
+      "scrollWidth": 375,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "161.5px 161.5px",
+      "productColumns": "161.5px 161.5px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Mobile menu: focus trap, Shift+Tab, Escape, focus restoration, scroll lock",
+      "passed": true
+    },
+    {
+      "name": "Mobile navigation closes menu and focuses route content",
+      "passed": true
+    },
+    {
+      "name": "Mobile menu closes at desktop breakpoint",
+      "passed": true
+    },
+    {
+      "name": "Search preview dialog and Escape focus restoration",
+      "passed": true
+    },
+    {
+      "name": "Skip link targets main landmark",
+      "passed": true
+    },
+    {
+      "name": "Newsletter validates email and reports local-only preview",
+      "passed": true
+    },
+    {
+      "name": "Route /about",
+      "title": "Built with intention. Built to grow. | HEXSHOES",
+      "heading": "Built with intention. Built to grow.",
+      "overflow": false
+    },
+    {
+      "name": "Route /",
+      "title": "Built for what's next | HEXSHOES",
+      "heading": "BUILTFORWHAT'S NEXT.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop",
+      "title": "Find your next direction. | HEXSHOES",
+      "heading": "Find your next direction.",
+      "overflow": false
+    },
+    {
+      "name": "Route /men",
+      "title": "Movement, considered. | HEXSHOES",
+      "heading": "Movement, considered.",
+      "overflow": false
+    },
+    {
+      "name": "Route /women",
+      "title": "Your own direction. | HEXSHOES",
+      "heading": "Your own direction.",
+      "overflow": false
+    },
+    {
+      "name": "Route /new-drops",
+      "title": "The next rotation. | HEXSHOES",
+      "heading": "The next rotation.",
+      "overflow": false
+    },
+    {
+      "name": "Route /visual-search",
+      "title": "Start with what catches your eye. | HEXSHOES",
+      "heading": "Start with what catches your eye.",
+      "overflow": false
+    },
+    {
+      "name": "Route /technology",
+      "title": "Good design. Deeper intelligence. | HEXSHOES",
+      "heading": "Good design. Deeper intelligence.",
+      "overflow": false
+    },
+    {
+      "name": "Route /wishlist",
+      "title": "Keep inspiration close. | HEXSHOES",
+      "heading": "Keep inspiration close.",
+      "overflow": false
+    },
+    {
+      "name": "Route /cart",
+      "title": "Your next step starts here. | HEXSHOES",
+      "heading": "Your next step starts here.",
+      "overflow": false
+    },
+    {
+      "name": "Route /account",
+      "title": "A more personal perspective. | HEXSHOES",
+      "heading": "A more personal perspective.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=run",
+      "title": "Run. A new direction. | HEXSHOES",
+      "heading": "Run. A new direction.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=trail",
+      "title": "Trail. A new direction. | HEXSHOES",
+      "heading": "Trail. A new direction.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=lifestyle",
+      "title": "Lifestyle. A new direction. | HEXSHOES",
+      "heading": "Lifestyle. A new direction.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=slides",
+      "title": "Slides. A new direction. | HEXSHOES",
+      "heading": "Slides. A new direction.",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-01",
+      "title": "HEX Runner | HEXSHOES",
+      "heading": "HEX Runner",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-02",
+      "title": "HEX Trail | HEXSHOES",
+      "heading": "HEX Trail",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-03",
+      "title": "HEX Slide | HEXSHOES",
+      "heading": "HEX Slide",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-04",
+      "title": "HEX Mono | HEXSHOES",
+      "heading": "HEX Mono",
+      "overflow": false
+    },
+    {
+      "name": "Route /contact",
+      "title": "A conversation starts with a step. | HEXSHOES",
+      "heading": "A conversation starts with a step.",
+      "overflow": false
+    },
+    {
+      "name": "Route /not-a-page",
+      "title": "This path ends here. | HEXSHOES",
+      "heading": "This path ends here.",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/missing",
+      "title": "This path ends here. | HEXSHOES",
+      "heading": "This path ends here.",
+      "overflow": false
+    },
+    {
+      "name": "Reduced motion reveals content and suppresses entrance motion",
+      "revealOpacity": "1",
+      "heroAnimationDuration": "1e-05s"
+    }
+  ],
+  "consoleErrors": [],
+  "networkErrors": [],
+  "mutationRequests": []
+}

@@ -1,0 +1,313 @@
+{
+  "browser": "Installed Chromium (Edge)",
+  "url": "http://127.0.0.1:5173/",
+  "checks": [
+    {
+      "name": "Homepage responsive 1440px",
+      "width": 1440,
+      "clientWidth": 1425,
+      "scrollWidth": 1425,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "515.656px 396.672px 396.672px",
+      "productColumns": "319.75px 319.75px 319.75px 319.75px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 1280px",
+      "width": 1280,
+      "clientWidth": 1265,
+      "scrollWidth": 1265,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "452.625px 348.188px 348.188px",
+      "productColumns": "279.75px 279.75px 279.75px 279.75px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 1024px",
+      "width": 1024,
+      "clientWidth": 1009,
+      "scrollWidth": 1009,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "361.234px 277.875px 277.875px",
+      "productColumns": "466.5px 466.5px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 768px",
+      "width": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "355.656px 323.344px",
+      "productColumns": "338.5px 338.5px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Homepage responsive 390px",
+      "width": 390,
+      "clientWidth": 375,
+      "scrollWidth": 375,
+      "title": "Built for what's next | HEXSHOES",
+      "headings": 1,
+      "categoryColumns": "161.5px 161.5px",
+      "productColumns": "161.5px 161.5px",
+      "fontsLoaded": true
+    },
+    {
+      "name": "Mobile menu: focus trap, Shift+Tab, Escape, focus restoration, scroll lock",
+      "passed": true
+    },
+    {
+      "name": "Mobile navigation closes menu and focuses route content",
+      "passed": true
+    },
+    {
+      "name": "Mobile menu closes at desktop breakpoint",
+      "passed": true
+    },
+    {
+      "name": "Search preview dialog and Escape focus restoration",
+      "passed": true
+    },
+    {
+      "name": "Skip link targets main landmark",
+      "passed": true
+    },
+    {
+      "name": "Newsletter validates email and reports local-only preview",
+      "passed": true
+    },
+    {
+      "name": "Route /about",
+      "title": "Our perspective | HEXSHOES",
+      "heading": "MOVEMENTIS ONLY THEBEGINNING.",
+      "overflow": false
+    },
+    {
+      "name": "Route /",
+      "title": "Built for what's next | HEXSHOES",
+      "heading": "BUILTFOR WHAT'SNEXT.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop",
+      "title": "Find your direction | HEXSHOES",
+      "heading": "FIND YOURDIRECTION.",
+      "overflow": false
+    },
+    {
+      "name": "Route /men",
+      "title": "Movement, considered. | HEXSHOES",
+      "heading": "Movement, considered.",
+      "overflow": false
+    },
+    {
+      "name": "Route /women",
+      "title": "Your own direction. | HEXSHOES",
+      "heading": "Your own direction.",
+      "overflow": false
+    },
+    {
+      "name": "Route /new-drops",
+      "title": "The next rotation. | HEXSHOES",
+      "heading": "The next rotation.",
+      "overflow": false
+    },
+    {
+      "name": "Route /visual-search",
+      "title": "Visual discovery | HEXSHOES",
+      "heading": "SEE IT.FIND IT.WEAR IT.",
+      "overflow": false
+    },
+    {
+      "name": "Route /technology",
+      "title": "The intelligence architecture | HEXSHOES",
+      "heading": "INTELLIGENCE.BY DESIGN.",
+      "overflow": false
+    },
+    {
+      "name": "Route /contact",
+      "title": "Start a conversation | HEXSHOES",
+      "heading": "LET’S MOVEFORWARD.",
+      "overflow": false
+    },
+    {
+      "name": "Route /wishlist",
+      "title": "Your inspiration | HEXSHOES",
+      "heading": "KEEP YOURNEXT MOVECLOSE.",
+      "overflow": false
+    },
+    {
+      "name": "Route /cart",
+      "title": "Your bag | HEXSHOES",
+      "heading": "ROOM FORWHAT’S NEXT.",
+      "overflow": false
+    },
+    {
+      "name": "Route /account",
+      "title": "A more personal perspective. | HEXSHOES",
+      "heading": "A more personal perspective.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=run",
+      "title": "Find your direction | HEXSHOES",
+      "heading": "FIND YOURDIRECTION.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=trail",
+      "title": "Find your direction | HEXSHOES",
+      "heading": "FIND YOURDIRECTION.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=lifestyle",
+      "title": "Find your direction | HEXSHOES",
+      "heading": "FIND YOURDIRECTION.",
+      "overflow": false
+    },
+    {
+      "name": "Route /shop?category=slides",
+      "title": "Find your direction | HEXSHOES",
+      "heading": "FIND YOURDIRECTION.",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-01",
+      "title": "HEX Runner | HEXSHOES",
+      "heading": "HEX Runner",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-02",
+      "title": "HEX Trail | HEXSHOES",
+      "heading": "HEX Trail",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-03",
+      "title": "HEX Slide | HEXSHOES",
+      "heading": "HEX Slide",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/hx-04",
+      "title": "HEX Mono | HEXSHOES",
+      "heading": "HEX Mono",
+      "overflow": false
+    },
+    {
+      "name": "Route /not-a-page",
+      "title": "This path ends here. | HEXSHOES",
+      "heading": "This path ends here.",
+      "overflow": false
+    },
+    {
+      "name": "Route /product/missing",
+      "title": "This path ends here. | HEXSHOES",
+      "heading": "This path ends here.",
+      "overflow": false
+    },
+    {
+      "name": "Quick view: focus trap, Shift+Tab, Escape, focus restoration, scroll lock",
+      "passed": true
+    },
+    {
+      "name": "Local collection direction filters",
+      "passed": true
+    },
+    {
+      "name": "Visual search samples and pipeline explanations without simulated results",
+      "passed": true
+    },
+    {
+      "name": "Roadmap tabs: arrow keys, Home, End, associated panel",
+      "passed": true
+    },
+    {
+      "name": "Contact form validation and honest local confirmation",
+      "passed": true
+    },
+    {
+      "name": "Campaign preview and pause control",
+      "passed": true
+    },
+    {
+      "name": "Scripted assistant prompts, text input, focus trap, Escape and restoration",
+      "passed": true
+    },
+    {
+      "name": "/shop responsive 768px",
+      "passed": true
+    },
+    {
+      "name": "/visual-search responsive 768px",
+      "passed": true
+    },
+    {
+      "name": "/technology responsive 768px",
+      "passed": true
+    },
+    {
+      "name": "/about responsive 768px",
+      "passed": true
+    },
+    {
+      "name": "/contact responsive 768px",
+      "passed": true
+    },
+    {
+      "name": "/cart responsive 768px",
+      "passed": true
+    },
+    {
+      "name": "/wishlist responsive 768px",
+      "passed": true
+    },
+    {
+      "name": "/shop responsive 390px",
+      "passed": true
+    },
+    {
+      "name": "/visual-search responsive 390px",
+      "passed": true
+    },
+    {
+      "name": "/technology responsive 390px",
+      "passed": true
+    },
+    {
+      "name": "/about responsive 390px",
+      "passed": true
+    },
+    {
+      "name": "/contact responsive 390px",
+      "passed": true
+    },
+    {
+      "name": "/cart responsive 390px",
+      "passed": true
+    },
+    {
+      "name": "/wishlist responsive 390px",
+      "passed": true
+    },
+    {
+      "name": "Footer informational privacy dialog",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion reveals content and suppresses entrance motion",
+      "revealOpacity": "1",
+      "heroAnimationDuration": "1e-05s"
+    }
+  ],
+  "consoleErrors": [],
+  "networkErrors": [],
+  "mutationRequests": []
+}

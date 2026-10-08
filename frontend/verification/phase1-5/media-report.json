@@ -1,0 +1,131 @@
+{
+  "assets": [
+    {
+      "file": "hero-640.webp",
+      "width": 640,
+      "height": 427,
+      "bytes": 41904
+    },
+    {
+      "file": "hero-960.webp",
+      "width": 960,
+      "height": 640,
+      "bytes": 85986
+    },
+    {
+      "file": "hero-1536.webp",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 187376
+    },
+    {
+      "file": "runner-320.webp",
+      "width": 320,
+      "height": 320,
+      "bytes": 9260
+    },
+    {
+      "file": "runner-640.webp",
+      "width": 640,
+      "height": 640,
+      "bytes": 34792
+    },
+    {
+      "file": "runner-960.webp",
+      "width": 960,
+      "height": 960,
+      "bytes": 75250
+    },
+    {
+      "file": "trail-320.webp",
+      "width": 320,
+      "height": 320,
+      "bytes": 20966
+    },
+    {
+      "file": "trail-640.webp",
+      "width": 640,
+      "height": 640,
+      "bytes": 68772
+    },
+    {
+      "file": "trail-960.webp",
+      "width": 960,
+      "height": 960,
+      "bytes": 133486
+    },
+    {
+      "file": "mono-320.webp",
+      "width": 320,
+      "height": 320,
+      "bytes": 12460
+    },
+    {
+      "file": "mono-640.webp",
+      "width": 640,
+      "height": 640,
+      "bytes": 40360
+    },
+    {
+      "file": "mono-960.webp",
+      "width": 960,
+      "height": 960,
+      "bytes": 77438
+    },
+    {
+      "file": "slide-320.webp",
+      "width": 320,
+      "height": 320,
+      "bytes": 11736
+    },
+    {
+      "file": "slide-640.webp",
+      "width": 640,
+      "height": 640,
+      "bytes": 45084
+    },
+    {
+      "file": "slide-960.webp",
+      "width": 960,
+      "height": 960,
+      "bytes": 97698
+    },
+    {
+      "file": "story-640.webp",
+      "width": 640,
+      "height": 360,
+      "bytes": 33080
+    },
+    {
+      "file": "story-960.webp",
+      "width": 960,
+      "height": 540,
+      "bytes": 59186
+    },
+    {
+      "file": "story-1536.webp",
+      "width": 1536,
+      "height": 864,
+      "bytes": 108944
+    },
+    {
+      "file": "texture-640.webp",
+      "width": 640,
+      "height": 360,
+      "bytes": 59252
+    },
+    {
+      "file": "texture-960.webp",
+      "width": 960,
+      "height": 540,
+      "bytes": 121446
+    },
+    {
+      "file": "texture-1536.webp",
+      "width": 1536,
+      "height": 864,
+      "bytes": 244940
+    }
+  ],
+  "totalBytes": 1569416
+}
