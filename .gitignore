@@ -1,0 +1,62 @@
+# Node.js and generated builds
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables (only placeholder examples may be tracked)
+.env
+.env.*
+!.env.example
+
+# Python environments and caches
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Firebase credentials and private keys
+serviceAccountKey.json
+*service-account*.json
+*firebase-admin*.json
+*.pem
+*.key
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Testing artifacts
+coverage/
+playwright-report/
+test-results/
+
+# Editors and operating systems
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Logs, temporary files, and caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.cache/
+.tmp/
+tmp/
+temp/
+*.tmp
+*.bak
+.ipynb_checkpoints/
