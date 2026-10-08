@@ -28,11 +28,33 @@ const stages = [
       "Retrieved styles will be ordered by visual similarity. These samples are a layout preview.",
   },
 ];
+const homepageStages = [
+  {
+    title: "Embed",
+    detail:
+      "Planned: encode an inspiration image into a CLIP embedding for visual retrieval.",
+  },
+  {
+    title: "Compare",
+    detail:
+      "Planned: compare the image embedding with footwear catalog embeddings using cosine similarity.",
+  },
+  {
+    title: "Rank",
+    detail:
+      "Planned: return styles ordered by visual similarity. These samples are presentation concepts.",
+  },
+];
 
-export function VisualSearchConsole() {
+export function VisualSearchConsole({
+  compactPipeline = false,
+}: {
+  compactPipeline?: boolean;
+}) {
   const [sample, setSample] = useState<FootwearStyle>("runner");
   const [stage, setStage] = useState(0);
   const id = useId();
+  const visibleStages = compactPipeline ? homepageStages : stages;
   return (
     <div className="discovery-console">
       <div className="discovery-console__top">
@@ -80,7 +102,7 @@ export function VisualSearchConsole() {
         className="discovery-console__stages"
         aria-label="Explore the planned search pipeline"
       >
-        {stages.map((item, index) => (
+        {visibleStages.map((item, index) => (
           <button
             type="button"
             key={item.title}

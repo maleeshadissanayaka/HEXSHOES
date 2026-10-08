@@ -20,8 +20,8 @@ export function OurStory() {
               JUST SHOES.
             </h2>
             <p>
-              HEXSHOES brings together movement, footwear design, digital
-              commerce and intelligent discovery.
+              HEXSHOES combines performance footwear, intelligent technology,
+              and data-driven discovery.
             </p>
             <Link className="text-link" to="/about">
               Our story <span aria-hidden="true">&#8594;</span>

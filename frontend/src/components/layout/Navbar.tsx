@@ -28,7 +28,7 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`navbar ${scrolled || pathname !== "/" ? "navbar--solid" : ""}`}
+        className={`navbar ${scrolled || pathname !== "/" ? "navbar--solid" : ""} ${pathname === "/" ? "navbar--home" : ""}`}
       >
         <PageContainer className="navbar__inner">
           <Link to="/" className="wordmark" aria-label="HEXSHOES home">

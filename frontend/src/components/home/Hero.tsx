@@ -13,7 +13,7 @@ export function Hero() {
         <div className="hero__copy">
           <p className="eyebrow hero__eyebrow">
             <span className="signal-dot" />
-            HEXSHOES / Performance system
+            FOOTWEAR / INTELLIGENT DISCOVERY
           </p>
           <h1 id="hero-title">
             BUILT

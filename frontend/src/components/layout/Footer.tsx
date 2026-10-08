@@ -1,5 +1,5 @@
 import { useExperience } from "../../hooks/useExperience";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { PageContainer } from "../shared/PageContainer";
 import "./layout.css";
 
@@ -31,10 +31,11 @@ const groups = [
 ];
 export function Footer() {
   const { open } = useExperience();
+  const { pathname } = useLocation();
   const information = (title: string, description: string) =>
     open({ kind: "information", title, description });
   return (
-    <footer className="footer">
+    <footer className={`footer ${pathname === "/" ? "footer--home" : ""}`}>
       <PageContainer>
         <div className="footer__top">
           <div className="footer__brand">

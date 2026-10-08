@@ -4,15 +4,19 @@
   justify-content: center;
   align-items: center;
   gap: var(--space-24);
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: #080b0f;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
   font-size: 0.6875rem;
 }
 .announcement a {
   display: inline-flex;
   gap: var(--space-8);
   align-items: center;
-  font-weight: 600;
+  color: var(--color-text-primary);
+  font: 700 0.625rem/1.2 var(--font-heading);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .navbar {
   position: sticky;
@@ -26,7 +30,7 @@
     backdrop-filter var(--motion-normal);
 }
 .navbar--solid {
-  background: rgb(8 9 10 / 92%);
+  background: rgb(3 4 5 / 94%);
   backdrop-filter: blur(14px);
   box-shadow: 0 4px 24px rgb(0 0 0 / 12%);
 }
@@ -35,7 +39,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-24);
-  min-height: 74px;
+  min-height: 66px;
 }
 .wordmark {
   font-family: var(--font-heading);
@@ -56,6 +60,30 @@
   display: flex;
   align-items: center;
   gap: var(--space-24);
+}
+.desktop-nav a {
+  font-family: var(--font-heading);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+.navbar--home .navbar__inner {
+  gap: clamp(10px, 1.2vw, 18px);
+}
+.navbar--home .desktop-nav {
+  flex: 1;
+}
+.navbar--home .desktop-nav ul {
+  justify-content: center;
+  gap: clamp(9px, 1.15vw, 16px);
+}
+.navbar--home .navbar__utilities {
+  flex-shrink: 0;
+}
+.navbar--home.navbar--solid {
+  background: rgb(3 4 5 / 84%);
+  backdrop-filter: blur(16px) saturate(135%);
 }
 .desktop-nav a {
   font-size: 0.75rem;
@@ -265,6 +293,17 @@ dialog::backdrop {
   }
   .navbar .mobile-toggle {
     display: inline-grid;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .navbar--home .desktop-nav {
+    display: block;
+  }
+  .navbar--home .desktop-nav ul {
+    gap: 8px;
+  }
+  .navbar--home .desktop-nav a {
+    font-size: 0.55rem;
   }
 }
 @media (max-width: 900px) {

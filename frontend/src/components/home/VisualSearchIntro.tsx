@@ -17,14 +17,13 @@ export function VisualSearchIntro() {
         <Reveal>
           <div className="visual-search__copy">
             <p className="eyebrow">
-              <span className="signal-dot" />A new lens on discovery
+              <span className="signal-dot" />
+              Visual discovery / Powered by CLIP
             </p>
             <h2>
-              See it.
+              Find your next
               <br />
-              Find it.
-              <br />
-              <span>Wear it.</span>
+              pair with AI.
             </h2>
             <p>Some things catch your eye before you know what to call them.</p>
             <p>
@@ -32,14 +31,14 @@ export function VisualSearchIntro() {
               Cosine similarity will connect that visual inspiration to similar
               catalog styles.
             </p>
-            <Button to="/visual-search" variant="light">
+            <Button to="/visual-search" variant="primary">
               Discover visual search
             </Button>
             <p className="visual-search__status eyebrow">AI foundation</p>
           </div>
         </Reveal>
         <Reveal stagger={1}>
-          <VisualSearchConsole />
+          <VisualSearchConsole compactPipeline />
         </Reveal>
       </PageContainer>
     </section>

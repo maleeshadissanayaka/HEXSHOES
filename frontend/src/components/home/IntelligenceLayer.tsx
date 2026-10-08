@@ -8,17 +8,17 @@ export function IntelligenceLayer() {
         <Reveal>
           <div className="intelligence__heading">
             <div>
-              <p className="eyebrow">AI / ML / DL / Data Science</p>
+              <p className="eyebrow">Built with AI / ML / DL / Data Science</p>
               <h2>
-                Designed to think
+                The
                 <br />
-                beyond the shoe.
+                intelligence layer.
               </h2>
             </div>
             <p>
-              A vision for discovery that goes deeper.
+              A technical foundation for more useful footwear discovery.
               <br />
-              Explore the intelligence roadmap.
+              See how the system could evolve.
             </p>
           </div>
         </Reveal>

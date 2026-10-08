@@ -51,6 +51,8 @@ h1,
 h2,
 h3 {
   font-family: var(--font-heading);
+  font-weight: 700;
+  text-wrap: balance;
 }
 ul {
   list-style: none;
@@ -193,6 +195,7 @@ ul {
   background: transparent;
   border-color: var(--color-border);
   color: inherit;
+  font-family: var(--font-heading);
 }
 .paper .button--outline {
   border-color: var(--color-border-light);

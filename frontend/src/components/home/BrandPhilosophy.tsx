@@ -6,7 +6,7 @@ const principles = [
   {
     letter: "H",
     title: "HOVER",
-    subtitle: "Lighter movement.",
+    subtitle: "Lighter movement",
     description:
       "An ambition to make every step feel considered. Less distraction. More freedom.",
     number: "01",
@@ -14,7 +14,7 @@ const principles = [
   {
     letter: "E",
     title: "ELEGANCE",
-    subtitle: "Timeless form.",
+    subtitle: "Timeless design",
     description:
       "A restrained design language. Built around the essentials, with nothing there by accident.",
     number: "02",
@@ -22,7 +22,7 @@ const principles = [
   {
     letter: "X",
     title: "XPERIENCE",
-    subtitle: "Discovery, reimagined.",
+    subtitle: "A smarter way to shop",
     description:
       "A vision for a smarter connection between what moves you and what you wear.",
     number: "03",
@@ -35,15 +35,15 @@ export function BrandPhilosophy() {
       <PageContainer>
         <Reveal>
           <div className="philosophy__intro">
-            <p className="eyebrow">The HEX perspective</p>
+            <p className="eyebrow">HEX / Brand principles</p>
             <h2>
-              Three letters.
+              The HEX
               <br />
-              One forward direction.
+              means more.
             </h2>
             <p>
-              More than a name. A way of thinking about movement, form, and the
-              experience in between.
+              Performance, considered design, and intelligent discovery—built
+              into one forward direction.
             </p>
           </div>
         </Reveal>

@@ -14,7 +14,7 @@ const categories: {
   slug: string;
 }[] = [
   {
-    name: "RUNNING",
+    name: "RUNNERS",
     description: "Find your rhythm.",
     style: "runner",
     slug: "run",
@@ -94,7 +94,9 @@ function CategoryTile({
           <h3>{category.name}</h3>
           <p>{category.description}</p>
         </div>
-        <Icon name="diagonal" size={25} />
+        <span className="category__arrow" aria-hidden="true">
+          <Icon name="diagonal" size={18} />
+        </span>
       </div>
     </Link>
   );

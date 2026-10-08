@@ -13,7 +13,7 @@ import "../components/home/home.css";
 export function HomePage() {
   useDocumentTitle("Built for what's next");
   return (
-    <div className="route-enter">
+    <div className="home-page route-enter">
       <Hero />
       <div className="brand-values">
         <PageContainer>
