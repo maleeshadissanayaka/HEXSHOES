@@ -18,7 +18,7 @@ export function VisualSearchIntro() {
           <div className="visual-search__copy">
             <p className="eyebrow">
               <span className="signal-dot" />
-              Visual discovery / Powered by CLIP
+              Visual discovery / AI foundation
             </p>
             <h2>
               Find your next
@@ -27,9 +27,9 @@ export function VisualSearchIntro() {
             </h2>
             <p>Some things catch your eye before you know what to call them.</p>
             <p>
-              In a future phase, a footwear image will become a CLIP embedding.
-              Cosine similarity will connect that visual inspiration to similar
-              catalog styles.
+              The panel previews sample images and local uploads. Image
+              encoding and catalog retrieval with CLIP and cosine similarity
+              are planned, but are not connected.
             </p>
             <Button to="/visual-search" variant="primary">
               Discover visual search

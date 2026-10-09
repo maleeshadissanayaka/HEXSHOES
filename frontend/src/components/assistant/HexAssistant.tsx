@@ -38,7 +38,7 @@ function scriptedReply(text: string): Message {
     };
   return {
     role: "assistant",
-    text: "I’m a scripted guide to HEXSHOES. I can introduce the collection, explain visual discovery, or point you to our technology story. A connected AI shopping agent is planned for later.",
+    text: "I’m a scripted guide to HEXSHOES. I can introduce the collection, explain visual discovery, or point you to our technology story. An AI shopping agent is a research direction, not an active service.",
     link: { to: "/technology", label: "Meet the technology vision" },
   };
 }
@@ -141,7 +141,7 @@ export function HexAssistant() {
         </button>
       </form>
       <p className="quiet-note">
-        Scripted product guide · AI agent integration comes later.
+        Scripted product guide · AI agent is a research direction.
         <br />
         Messages are not sent or stored.
       </p>

@@ -8,7 +8,7 @@ export function Newsletter() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(
-      "Preview complete. Your email was not sent or stored. Sign-ups will open in a future phase.",
+      "Preview complete. Your email was not sent or stored. Email sign-ups are not connected.",
     );
     event.currentTarget.reset();
   }

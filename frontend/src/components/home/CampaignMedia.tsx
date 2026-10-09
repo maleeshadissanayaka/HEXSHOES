@@ -1,26 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { PresentationImage } from "../shared/PresentationImage";
 import { Icon } from "../shared/Icon";
 
-/** Optional local video sources; the current campaign uses its optimized still. */
-export function CampaignMedia({
-  webmSrc,
-  mp4Src,
-}: {
-  webmSrc?: string;
-  mp4Src?: string;
-}) {
+/** The current campaign uses an optimized still with restrained CSS motion. */
+export function CampaignMedia() {
   const reducedMotion = useReducedMotion();
   const [paused, setPaused] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const video = useRef<HTMLVideoElement>(null);
-  const hasVideo = Boolean(webmSrc || mp4Src);
-  useEffect(() => {
-    if (!video.current) return;
-    if (paused || reducedMotion) video.current.pause();
-    else void video.current.play().catch(() => setFailed(true));
-  }, [paused, reducedMotion, webmSrc, mp4Src]);
   return (
     <>
       <div
@@ -32,22 +18,6 @@ export function CampaignMedia({
           sizes="100vw"
           priority
         />
-        {hasVideo && !reducedMotion && !failed && (
-          <video
-            ref={video}
-            poster="/media/presentation/hero-1536.webp"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="none"
-            onError={() => setFailed(true)}
-            aria-hidden="true"
-          >
-            {webmSrc && <source src={webmSrc} type="video/webm" />}
-            {mp4Src && <source src={mp4Src} type="video/mp4" />}
-          </video>
-        )}
       </div>
       <button
         className="campaign-motion"

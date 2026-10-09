@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useMemo, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { ExperienceContext } from "../../hooks/useExperience";
 import type { ExperienceDialog } from "../../types/experience";
 import { PremiumModal } from "../shared/PremiumModal";
@@ -7,20 +7,61 @@ import { PresentationImage } from "../shared/PresentationImage";
 import { Icon } from "../shared/Icon";
 import { QuickView } from "../products/QuickView";
 import { HexAssistant, AssistantLauncher } from "../assistant/HexAssistant";
+import type { CartLine } from "../../types/product";
 
 export function ExperienceProvider({ children }: { children: ReactNode }) {
   const [dialog, setDialog] = useState<ExperienceDialog | null>(null);
-  const { pathname } = useLocation();
-  const api = useMemo(
-    () => ({
-      open: (next: ExperienceDialog) => setDialog(next),
-      close: () => setDialog(null),
-    }),
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const openDialog = useMemo(
+    () => (next: ExperienceDialog) => setDialog(next),
     [],
   );
-  useEffect(() => {
-    api.close();
-  }, [pathname, api]);
+  const closeDialog = useMemo(() => () => setDialog(null), []);
+  const api = useMemo(
+    () => ({
+      open: openDialog,
+      close: closeDialog,
+      cart,
+      wishlist,
+      toggleWishlist: (productId: string) =>
+        setWishlist((current) =>
+          current.includes(productId)
+            ? current.filter((id) => id !== productId)
+            : [...current, productId],
+        ),
+      addToCart: (product: CartLine["product"], size: string, quantity: number) =>
+        setCart((current) => {
+          const existing = current.find(
+            (item) => item.product.id === product.id && item.size === size,
+          );
+          return existing
+            ? current.map((item) =>
+                item === existing
+                  ? { ...item, quantity: item.quantity + quantity }
+                  : item,
+              )
+            : [...current, { product, size, quantity }];
+        }),
+      updateCartQuantity: (productId: string, size: string, quantity: number) =>
+        setCart((current) =>
+          current.map((item) =>
+            item.product.id === productId && item.size === size
+              ? { ...item, quantity: Math.max(1, quantity) }
+              : item,
+          ),
+        ),
+      removeCartItem: (productId: string, size: string) =>
+        setCart((current) =>
+          current.filter(
+            (item) => item.product.id !== productId || item.size !== size,
+          ),
+        ),
+      removeWishlistItem: (productId: string) =>
+        setWishlist((current) => current.filter((id) => id !== productId)),
+    }),
+    [cart, wishlist, openDialog, closeDialog],
+  );
   const title =
     dialog?.kind === "quick-view"
       ? `${dialog.product.name} quick view`

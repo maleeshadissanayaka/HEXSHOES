@@ -23,7 +23,7 @@ export function IntelligenceLayer() {
           </div>
         </Reveal>
         <Reveal>
-          <IntelligenceStory />
+          <IntelligenceStory excludeVisualSearch />
         </Reveal>
       </PageContainer>
     </section>

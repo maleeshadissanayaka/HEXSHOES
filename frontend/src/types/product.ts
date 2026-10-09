@@ -7,3 +7,9 @@ export interface PresentationProduct {
   currency: "USD";
   style: FootwearStyle;
 }
+
+export interface CartLine {
+  product: PresentationProduct;
+  size: string;
+  quantity: number;
+}

@@ -46,6 +46,12 @@
   color: var(--color-accent);
   transform: scale(1.06);
 }
+.product-card__wishlist[aria-pressed="true"] {
+  color: var(--color-accent);
+}
+.product-card__wishlist[aria-pressed="true"] svg {
+  fill: rgb(59 91 255 / 16%);
+}
 .product-card__wishlist:hover svg {
   fill: rgb(59 91 255 / 12%);
 }

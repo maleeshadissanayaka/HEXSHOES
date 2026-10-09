@@ -1,6 +1,6 @@
 # HEXSHOES Frontend
 
-The Phase 1 storefront foundation with a Phase 1.6 premium experience redesign: an editorial footwear presentation and reusable design system for future intelligent commerce. Cinematic local imagery, collection browsing, accessible quick views, and a scripted guide establish the visual direction. Purchasing and connected services remain future work.
+The HEXSHOES customer-facing storefront: an editorial footwear presentation with local, illustrative interactions. Product imagery and prices are design fixtures. Connected commerce, authentication, and AI services are not active.
 
 ## Stack
 
@@ -22,7 +22,7 @@ npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-Open `http://127.0.0.1:5173/`. Vite may choose another port if this one is occupied; the browser verification script expects port 5173.
+Open the local URL printed by Vite. Vite may choose another port if the default is occupied. The browser verification script accepts a target through `--base-url`.
 
 ```powershell
 npm run lint
@@ -39,12 +39,12 @@ npm run preview -- --host 127.0.0.1
 | ----------------------------------- | ------------------------------------------------------------------------------- |
 | `/`                                 | Designed homepage                                                               |
 | `/shop`                             | Local presentation collection with direction filters and quick views; recognizes `?category=run`, `trail`, `lifestyle`, or `slides` |
-| `/men`, `/women`                    | Collection shells                                                               |
-| `/new-drops`                        | Collection preview shell                                                        |
-| `/product/:id`                      | Product concept shell for the four local fixtures; unknown IDs show 404         |
-| `/visual-search`                    | Sample-image exploration and an interactive explanation of the planned pipeline |
-| `/wishlist`, `/cart`               | Editorial empty states and collection inspiration; no persistence or commerce behavior |
-| `/account`                         | Temporary account shell; no authentication |
+| `/men`, `/women`                    | Distinct campaign collections with filters and four presentation studies       |
+| `/new-drops`                        | Editorial grid of the four current presentation studies                          |
+| `/product/:id`                      | Product concept detail, gallery, presentation size/quantity, and visit-only bag; unknown IDs show 404 |
+| `/visual-search`                    | Sample-image selection, local upload preview, and an interactive planned-pipeline explanation; no CLIP inference |
+| `/wishlist`, `/cart`               | Visit-only saved styles and bag state held in memory; no persistence or checkout |
+| `/account`                         | Personal-space preview; no authentication or customer data |
 | `/about`                           | Brand manifesto and cinematic movement story |
 | `/technology`                      | Intended architecture, service boundaries, and interactive roadmap |
 | `/contact`                         | Validated local contact-form preview; no submission |
@@ -61,8 +61,8 @@ src/
 │   ├── layout/        # Announcement, navigation, mobile dialog, footer, skip link
 │   ├── products/      # Presentation-only ProductCard
 │   └── shared/        # Buttons, icons, containers, headings, reveal, shell, concept art
-├── pages/             # Homepage and temporary page shells
-├── data/              # Navigation, route descriptions, isolated product fixtures
+├── pages/             # Homepage, collection, account, product, and company routes
+├── data/              # Navigation, media descriptions, isolated product fixtures
 ├── hooks/             # Modal lifecycle/focus management and document titles
 ├── styles/            # Shared tokens and global styles
 ├── types/             # Presentation product contract
@@ -84,7 +84,7 @@ src/
 
 Archivo handles branding and headings; Space Grotesk handles body/UI; JetBrains Mono is reserved for metadata. Google Fonts loads these with `display=swap`, preconnected origins, and local system fallbacks. External fonts require internet access; self-hosting can be considered in a later production phase.
 
-Reusable components include AnnouncementBar, Navbar, MobileMenu, Footer, PageContainer, SectionHeader, Button, IconButton, SkipLink, PageShell, Reveal, ProductCard, QuickView, PremiumModal, CampaignMedia, PresentationImage, VisualSearchConsole, IntelligenceStory, and HexAssistant. ExperienceProvider coordinates one shared dialog surface; the existing modal lifecycle handles focus and scroll locking.
+Reusable components include AnnouncementBar, Navbar, MobileMenu, Footer, PageContainer, SectionHeader, Button, IconButton, SkipLink, PageShell (used by 404), Reveal, ProductCard, QuickView, PremiumModal, CampaignMedia, PresentationImage, VisualSearchConsole, IntelligenceStory, and HexAssistant. ExperienceProvider coordinates dialogs and visit-only cart/wishlist state; the modal lifecycle handles focus and scroll locking.
 
 The homepage presents the hero, brand value strip, HEX philosophy, category directions, new drops preview, planned visual search, future intelligence roadmap, story, and newsletter, between the global announcement and footer.
 
@@ -92,11 +92,11 @@ The homepage presents the hero, brand value strip, HEX philosophy, category dire
 
 `src/data/presentationProducts.ts` contains four isolated design fixtures: HX-01 / HEX Runner / $128, HX-02 / HEX Trail / $164, HX-03 / HEX Slide / $74, and HX-04 / HEX Mono / $142. Prices are illustrative USD values. The page explicitly labels these as concepts that are not available for purchase. There are no stock, size, color-availability, review, rating, sales, or accuracy claims.
 
-The redesign reuses seven generated photographic concept compositions from Phase 1.5, isolated in `public/media/presentation/` and `src/data/presentationMedia.ts`. These are speculative presentation assets, not photographs of manufactured stock. Each has three compressed WebP variants, totaling approximately 1.57 MB across all 21 files; the browser selects the appropriate variant. Lead campaign images load eagerly with high priority; other images use lazy loading and asynchronous decoding. Explicit dimensions reserve layout space. Wishlist links open the wishlist empty state and never save anything. No additional media or runtime packages were needed for Phase 1.6.
+The storefront uses seven generated photographic concept compositions, isolated in `public/media/presentation/` and `src/data/presentationMedia.ts`. These are presentation assets, not photographs of manufactured stock. Each has three compressed WebP variants; the browser selects an appropriate responsive source. Lead campaign images load eagerly with high priority; other images use lazy loading and asynchronous decoding. Explicit dimensions reserve layout space. The homepage hero uses a still image with restrained CSS motion and a motion toggle; there is no campaign video. No additional runtime packages are required.
 
-The search utility opens an accessible explanatory dialog. Visual discovery lets visitors switch among local sample images and inspect pipeline explanations. Its ordered style thumbnails remain fixed presentation examples: no upload, retrieval, similarity scores, or simulated processing. Intelligence modules use FOUNDATION, PLANNED, and RESEARCH labels; FOUNDATION describes the frontend presentation only. No intelligence module is active. The roadmap supports pointer selection, arrow keys, Home, and End.
+The search utility opens an accessible explanatory dialog. Visual discovery lets visitors switch local samples or preview a selected image in the browser, then inspect pipeline explanations. Its style thumbnails remain fixed presentation examples: uploads are not sent, and retrieval, similarity scores, and simulated processing are not active. Intelligence modules use current-foundation, planned, and research status labels. The roadmap supports pointer selection, arrow keys, Home, and End.
 
-HEX Assistant uses deterministic local replies and suggested prompts. It sends no requests, stores no conversations, and clears when dismissed. It is explicitly identified as a scripted product guide. The contact form validates required fields and email, then displays a local preview confirmation. Newsletter submission validates email, displays a local confirmation, and clears the input. Neither form sends or stores data.
+HEX Assistant uses deterministic local replies and suggested prompts. It sends no requests, stores no conversations, and clears when dismissed. It is explicitly identified as a scripted product guide. Product sizes, quantities, bag items, and saved styles are local presentation interactions held in memory for the visit and clear on reload. The contact form validates required fields and email, then displays a local preview confirmation. Newsletter submission validates email, displays a local confirmation, and clears the input. Neither form sends or stores data.
 
 CampaignMedia currently uses the optimized hero still with a controllable slow drift. It accepts an optional local video source, with autoplay/muted/playsInline, poster fallback, playback controls, and reduced-motion fallback. No video asset or secondary product-angle photography is currently supplied.
 
@@ -120,14 +120,22 @@ Start the Vite server on port 5173, then run:
 npm run verify:browser -- --premium
 ```
 
+For the full pre-push route, interaction, network, and screenshot review, use:
+
+```powershell
+npm run verify:browser -- --pre-push-final --base-url=http://127.0.0.1:5173
+```
+
+The pre-push run writes to `verification/pre-push-final/`. Its screenshots and report are local review artifacts and should stay out of source commits unless explicitly requested.
+
 This uses Node's built-in WebSocket support and Chromium's DevTools protocol. It launches installed Microsoft Edge or Chrome headlessly, with a disposable profile under ignored `node_modules/.cache/`. It adds no automation dependency. On other systems, set `HEXSHOES_BROWSER_PATH` to an installed Chromium executable. The server must already be running.
 
 The script checks the homepage at 1440, 1280, 1024, 768, and 390px; horizontal overflow; routes and internal links; 404s; titles; mobile focus and scroll lock; dialogs; the skip link; newsletter state; reduced motion; console exceptions; and unexpected mutation requests. The premium suite also checks quick-view focus handling, collection filtering, sample/pipeline controls, keyboard roadmap tabs, contact validation, campaign controls, scripted assistant input, and secondary-page layouts at tablet/mobile widths.
 
-Phase 1.6 review artifacts are stored under `verification/premium-redesign/`, including requested full homepage screenshots, shop, visual-search, technology, and assistant captures, plus `browser-report.json`. Earlier Phase 1 and 1.5 artifacts remain separate. This is Chromium verification, not a full cross-browser or assistive-technology audit. Screenshots and reports are review artifacts, not application assets. Media provenance and generation prompts remain in `verification/phase1-5/MEDIA.md`.
+Earlier phase review artifacts remain in their respective verification folders. This is Chromium verification, not a full cross-browser or assistive-technology audit. Screenshots and reports are review artifacts, not application assets. Media provenance and generation prompts remain in `verification/phase1-5/MEDIA.md`.
 
 ## Current status and next work
 
-Phase 1.6 adds a premium retail presentation, cinematic homepage, asymmetric category grid, local quick views, scripted assistant, dedicated brand/technology/contact pages, and richer empty states. Existing URLs, runtime dependencies, and the accessibility architecture are preserved. All work remains uncommitted for visual review.
+The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, visit-only cart and saved styles, account preview, visual discovery, brand, technology, and contact pages. Four products and their prices are illustrative presentation fixtures. Bag and saved-style state live in memory for the current visit only; commerce, authentication, and CLIP inference are not connected. No additional runtime dependencies were added.
 
-Recommended Phase 2 frontend work: refine the visual direction after review; add licensed product photography; define a validated catalog contract; design collection filtering/sorting and product-detail layouts; expand visual-search and account shells; and test Safari/Firefox plus real mobile and assistive-technology interactions. Introduce integrations only when separately authorized.
+Remaining work belongs to separately scoped integrations: connect a verified catalog and commerce services, add licensed retail photography, implement authentication and checkout, and connect/evaluate real visual retrieval. Cross-browser Safari/Firefox and hands-on assistive-technology testing are also still recommended.

@@ -2206,6 +2206,9 @@
   color: var(--color-accent-bright);
   background: #0d1117;
 }
+.home-page .product-card__wishlist[aria-pressed="true"] {
+  color: var(--color-accent-bright);
+}
 .home-page .product-card__explore {
   color: var(--color-text-primary);
   background: #0d1117f2;
@@ -2659,7 +2662,40 @@
     margin-bottom: 20px;
   }
   .home-page .products-grid {
+    grid-template-columns: minmax(0, 1fr);
     row-gap: 22px;
+  }
+  .home-page .product-card__visual {
+    aspect-ratio: 1.05;
+  }
+  .home-page .product-card__tag {
+    max-width: none;
+    top: 14px;
+    left: 14px;
+    padding: 6px 8px;
+    font-size: 0.62rem;
+  }
+  .home-page .product-card__wishlist {
+    width: 46px;
+    height: 46px;
+  }
+  .home-page .product-card__explore {
+    min-height: 48px;
+    font-size: 0.68rem;
+  }
+  .home-page .product-card__details .eyebrow {
+    font-size: 0.65rem;
+    line-height: 1.5;
+  }
+  .home-page .product-card h3 {
+    font-size: 1.1rem;
+  }
+  .home-page .product-card__price {
+    font-size: 0.95rem;
+  }
+  .home-page .new-drops .section-note {
+    font-size: 0.63rem;
+    line-height: 1.7;
   }
   .home-page .visual-search__grid {
     gap: 22px;
@@ -2680,6 +2716,10 @@
   .home-page .intelligence-story__content {
     padding: 22px;
     padding-top: 130px;
+  }
+  .home-page .intelligence-story__content h3 {
+    font-size: 2rem;
+    overflow-wrap: anywhere;
   }
   .home-page .story-campaign {
     min-height: 520px;

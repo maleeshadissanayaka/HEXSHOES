@@ -53,18 +53,25 @@ const modules = [
   },
 ] as const;
 
-export function IntelligenceStory() {
+export function IntelligenceStory({
+  excludeVisualSearch = false,
+}: {
+  excludeVisualSearch?: boolean;
+}) {
+  const visibleModules = excludeVisualSearch
+    ? modules.filter((item) => item.title !== "Visual search")
+    : modules;
   const [active, setActive] = useState(0);
   const id = useId();
-  const module = modules[active] ?? modules[0];
+  const module = visibleModules[active] ?? visibleModules[0]!;
   function handleKey(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
     if (event.key === "ArrowDown" || event.key === "ArrowRight")
-      next = (index + 1) % modules.length;
+      next = (index + 1) % visibleModules.length;
     else if (event.key === "ArrowUp" || event.key === "ArrowLeft")
-      next = (index + modules.length - 1) % modules.length;
+      next = (index + visibleModules.length - 1) % visibleModules.length;
     else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = modules.length - 1;
+    else if (event.key === "End") next = visibleModules.length - 1;
     else return;
     event.preventDefault();
     setActive(next);
@@ -78,7 +85,7 @@ export function IntelligenceStory() {
         aria-label="Intelligence roadmap"
         aria-orientation="vertical"
       >
-        {modules.map((item, index) => (
+        {visibleModules.map((item, index) => (
           <button
             key={item.title}
             id={`${id}-tab-${index}`}

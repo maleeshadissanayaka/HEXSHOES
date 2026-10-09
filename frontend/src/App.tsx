@@ -4,9 +4,8 @@ import { AnnouncementBar } from "./components/layout/AnnouncementBar";
 import { Footer } from "./components/layout/Footer";
 import { Navbar } from "./components/layout/Navbar";
 import { SkipLink } from "./components/layout/SkipLink";
-import { PageShell } from "./components/shared/PageShell";
 import { HomePage } from "./pages/HomePage";
-import { NotFoundPage, ProductPage } from "./pages/ShellPages";
+import { NotFoundPage } from "./pages/ShellPages";
 import { ExperienceProvider } from "./components/layout/ExperienceProvider";
 import {
   ShopPage,
@@ -16,18 +15,28 @@ import {
   ContactPage,
   EmptyCollectionPage,
 } from "./pages/ExperiencePages";
+import {
+  AccountPage,
+  MenPage,
+  NewDropsPage,
+  WomenPage,
+} from "./pages/RetailPages";
+import { ProductPage } from "./pages/ProductPage";
 import "./styles/premium.css";
-import { shellPages } from "./data/routeShells";
+import "./styles/retail-pages.css";
+import { useExperience } from "./hooks/useExperience";
 
 function RouteEffects() {
   const { pathname, search } = useLocation();
+  const { close } = useExperience();
   useEffect(() => {
+    close();
     window.scrollTo({ top: 0, behavior: "instant" });
     const frame = requestAnimationFrame(() =>
       document.getElementById("main-content")?.focus({ preventScroll: true }),
     );
     return () => cancelAnimationFrame(frame);
-  }, [pathname, search]);
+  }, [pathname, search, close]);
   return null;
 }
 export default function App() {
@@ -44,30 +53,15 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/technology" element={<TechnologyPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/men" element={<MenPage />} />
+          <Route path="/women" element={<WomenPage />} />
+          <Route path="/new-drops" element={<NewDropsPage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route path="/cart" element={<EmptyCollectionPage kind="cart" />} />
           <Route
             path="/wishlist"
             element={<EmptyCollectionPage kind="wishlist" />}
           />
-          {shellPages
-            .filter(
-              (page) =>
-                ![
-                  "/visual-search",
-                  "/about",
-                  "/technology",
-                  "/contact",
-                  "/cart",
-                  "/wishlist",
-                ].includes(page.path),
-            )
-            .map((page) => (
-              <Route
-                key={page.path}
-                path={page.path}
-                element={<PageShell {...page} />}
-              />
-            ))}
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

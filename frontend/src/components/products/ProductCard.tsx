@@ -7,21 +7,24 @@ import { PresentationImage } from "../shared/PresentationImage";
 import "./product-card.css";
 
 export function ProductCard({ product }: { product: PresentationProduct }) {
-  const { open } = useExperience();
+  const { open, wishlist, toggleWishlist } = useExperience();
+  const isSaved = wishlist.includes(product.id);
   return (
     <article className="product-card">
       <div
         className={`product-card__visual product-card__visual--${product.style}`}
       >
         <span className="product-card__tag eyebrow">HEX / {product.code}</span>
-        <Link
-          to="/wishlist"
+        <button
+          type="button"
           className="product-card__wishlist"
-          title="Explore the planned wishlist"
-          aria-label={`Wishlist preview for ${product.name} — saving is not available`}
+          title={isSaved ? "Remove from saved styles" : "Save this style"}
+          aria-label={`${isSaved ? "Remove" : "Save"} ${product.name} ${isSaved ? "from" : "to"} saved styles`}
+          aria-pressed={isSaved}
+          onClick={() => toggleWishlist(product.id)}
         >
           <Icon name="heart" size={18} />
-        </Link>
+        </button>
         <Link
           to={`/product/${product.id}`}
           className="product-card__image"

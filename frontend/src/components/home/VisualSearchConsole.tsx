@@ -1,6 +1,7 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { PresentationImage } from "../shared/PresentationImage";
 import type { FootwearStyle } from "../../types/product";
+import { Icon } from "../shared/Icon";
 
 const samples: { asset: FootwearStyle; name: string }[] = [
   { asset: "runner", name: "Movement" },
@@ -20,7 +21,7 @@ const stages = [
   {
     title: "Cosine similarity",
     detail:
-      "The planned retrieval service will compare the query with catalog embeddings.",
+      "The planned retrieval service will compare image and catalog embeddings using cosine similarity.",
   },
   {
     title: "Ranked styles",
@@ -53,8 +54,24 @@ export function VisualSearchConsole({
 }) {
   const [sample, setSample] = useState<FootwearStyle>("runner");
   const [stage, setStage] = useState(0);
+  const [upload, setUpload] = useState<{ url: string; name: string } | null>(null);
+  const [uploadMessage, setUploadMessage] = useState("");
   const id = useId();
   const visibleStages = compactPipeline ? homepageStages : stages;
+  useEffect(() => {
+    if (!upload) return;
+    return () => URL.revokeObjectURL(upload.url);
+  }, [upload]);
+
+  function selectUpload(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
+      setUploadMessage("Choose an image file under 10 MB. The image stays in this browser.");
+      return;
+    }
+    setUpload({ url: URL.createObjectURL(file), name: file.name });
+    setUploadMessage("Local image preview ready. No upload or image analysis was performed.");
+  }
   return (
     <div className="discovery-console">
       <div className="discovery-console__top">
@@ -63,17 +80,21 @@ export function VisualSearchConsole({
       </div>
       <div className="discovery-console__query">
         <div className="discovery-console__image">
-          <PresentationImage
-            key={sample}
-            asset={sample}
-            alt="Selected footwear inspiration sample"
-            sizes="(max-width: 600px) 40vw, 240px"
-          />
-          <span className="eyebrow">Image / Inspiration</span>
+          {upload ? (
+            <img src={upload.url} alt={`Local preview: ${upload.name}`} />
+          ) : (
+            <PresentationImage
+              key={sample}
+              asset={sample}
+              alt="Selected footwear inspiration sample"
+              sizes="(max-width: 600px) 40vw, 240px"
+            />
+          )}
+          <span className="eyebrow">{upload ? "Local preview" : "Image / Inspiration"}</span>
         </div>
         <div className="discovery-console__drop">
           <span className="discovery-console__plus" aria-hidden="true">
-            +
+            <Icon name="upload" size={22} />
           </span>
           <h3>
             Start with
@@ -87,15 +108,28 @@ export function VisualSearchConsole({
                 type="button"
                 key={item.asset}
                 aria-pressed={sample === item.asset}
-                onClick={() => setSample(item.asset)}
+                onClick={() => {
+                  setSample(item.asset);
+                  setUpload(null);
+                  setUploadMessage("");
+                }}
               >
                 {item.name}
               </button>
             ))}
+            <label className="discovery-console__upload">
+              <Icon name="upload" size={15} />
+              <span>{upload ? "Choose another image" : "Choose an image"}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => selectUpload(event.currentTarget.files?.[0])}
+              />
+            </label>
           </div>
-          <p className="quiet-note">
-            Image upload arrives with AI integration.
-          </p>
+            <p className="quiet-note" role="status">
+              {uploadMessage || "Local preview only. Images are not sent or analyzed."}
+            </p>
         </div>
       </div>
       <div
@@ -116,11 +150,11 @@ export function VisualSearchConsole({
         ))}
       </div>
       <p id={id} className="discovery-console__explanation" role="status">
-        {stages[stage]?.detail}
+        {visibleStages[stage]?.detail}
       </p>
       <div className="discovery-console__results-heading">
-        <span className="eyebrow">Ranked styles / Preview</span>
-        <span className="quiet-note">Illustrative ordering</span>
+        <span className="eyebrow">Presentation styles / Not results</span>
+        <span className="quiet-note">No similarity scores</span>
       </div>
       <ol className="discovery-console__results">
         {samples.map((item, index) => (

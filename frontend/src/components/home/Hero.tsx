@@ -39,7 +39,7 @@ export function Hero() {
             className="hero__preview eyebrow"
             onClick={() => open({ kind: "campaign" })}
           >
-            <Icon name="play" size={16} /> Explore the campaign
+            <Icon name="diagonal" size={16} /> View the campaign still
           </button>
           <div className="hero__annotation">
             <span className="hero__annotation-line" />

@@ -5,7 +5,7 @@ export function PageShell({
   title,
   eyebrow,
   description,
-  status = "Frontend foundation / Page in development",
+  status = "Not found / Return to the collection",
 }: {
   title: string;
   eyebrow: string;

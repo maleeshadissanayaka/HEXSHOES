@@ -89,18 +89,19 @@
 .quick-view__copy .button {
   margin-top: 24px;
 }
+.quick-view__copy > .text-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin-top: 12px;
+  padding-block: 12px;
+}
 .quick-view__price {
   font-size: 1.4rem;
 }
-.quick-view__save {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--color-muted);
-  padding: 16px 0;
-  background: none;
-  border: 0;
-  cursor: pointer;
+.quick-view__copy > .text-link[aria-pressed="true"] {
+  color: var(--color-accent-bright);
 }
 .campaign-preview > img {
   display: block;
@@ -168,7 +169,8 @@
   text-transform: uppercase;
 }
 .hex-assistant__messages {
-  height: min(340px, 43dvh);
+  max-height: min(340px, 43dvh);
+  min-height: 60px;
   overflow: auto;
   overscroll-behavior: contain;
   padding: 20px 0;

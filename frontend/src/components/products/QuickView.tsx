@@ -6,7 +6,8 @@ import { PresentationImage } from "../shared/PresentationImage";
 import { Icon } from "../shared/Icon";
 
 export function QuickView({ product }: { product: PresentationProduct }) {
-  const { close, open } = useExperience();
+  const { close, wishlist, toggleWishlist } = useExperience();
+  const isSaved = wishlist.includes(product.id);
   return (
     <div className="quick-view">
       <div className="quick-view__media">
@@ -54,17 +55,12 @@ export function QuickView({ product }: { product: PresentationProduct }) {
         </Link>
         <button
           className="text-link"
-          onClick={() =>
-            open({
-              kind: "information",
-              title: "Keep inspiration close",
-              description:
-                "Wishlist saving will arrive with the collection. For now, you can explore the four footwear studies and their design direction.",
-            })
-          }
+          type="button"
+          aria-pressed={isSaved}
+          onClick={() => toggleWishlist(product.id)}
         >
           <Icon name="heart" size={17} />
-          <span>About your wishlist</span>
+          <span>{isSaved ? "Saved to wishlist" : "Save this style"}</span>
         </button>
       </div>
     </div>

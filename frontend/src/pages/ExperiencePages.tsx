@@ -10,6 +10,8 @@ import { Newsletter } from "../components/home/Newsletter";
 import { presentationProducts } from "../data/presentationProducts";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { Icon } from "../components/shared/Icon";
+import { useExperience } from "../hooks/useExperience";
+import { formatPrice } from "../utils/formatPrice";
 
 const directions = [
   { value: "", label: "All footwear", style: "" },
@@ -262,7 +264,7 @@ const architecture = [
     step: "01",
     title: "Frontend",
     stack: "React + TypeScript",
-    status: "Foundation",
+    status: "Current foundation",
     detail:
       "Responsive storefront, shared design system, accessible navigation, and local presentation interactions.",
   },
@@ -270,7 +272,7 @@ const architecture = [
     step: "02",
     title: "Commerce API",
     stack: "Node.js + Express",
-    status: "Planned",
+    status: "Architecture defined",
     detail:
       "A future REST boundary for catalog operations and commerce workflows.",
   },
@@ -278,7 +280,7 @@ const architecture = [
     step: "03",
     title: "Data & identity",
     stack: "Firebase / Firestore / Auth",
-    status: "Planned",
+    status: "Planned integration",
     detail:
       "Verified catalog data and authenticated experiences, with access controls designed before integration.",
   },
@@ -286,7 +288,7 @@ const architecture = [
     step: "04",
     title: "AI service",
     stack: "FastAPI + Python",
-    status: "Planned",
+    status: "Service structure",
     detail:
       "A dedicated service boundary for image preparation, embedding requests, and retrieval.",
   },
@@ -294,7 +296,7 @@ const architecture = [
     step: "05",
     title: "Deep learning",
     stack: "PyTorch + OpenCLIP",
-    status: "Planned",
+    status: "Model direction",
     detail:
       "Image embeddings from a pretrained vision-language model, with reproducible preprocessing.",
   },
@@ -326,9 +328,9 @@ export function TechnologyPage() {
               <br />A considered system underneath.
             </p>
             <p className="quiet-note">
-              Frontend foundation live.
+              CURRENT FOUNDATION / React + TypeScript
               <br />
-              Commerce, data, and AI services planned.
+              SERVICE AND DATA INTEGRATIONS / Planned
             </p>
           </div>
         </PageContainer>
@@ -337,7 +339,7 @@ export function TechnologyPage() {
         <PageContainer>
           <div className="editorial-heading">
             <p className="eyebrow">
-              System architecture / The intended connections
+              CURRENT FOUNDATION / System architecture
             </p>
             <h2>
               Built in layers.
@@ -385,13 +387,31 @@ export function TechnologyPage() {
               </Reveal>
             ))}
           </div>
+          <div className="technology-status">
+            <div>
+              <p className="eyebrow">Current foundation</p>
+              <p>
+                React and TypeScript power the customer-facing storefront.
+                Node.js / Express architecture and a FastAPI service structure
+                define the application boundaries.
+              </p>
+            </div>
+            <div>
+              <p className="eyebrow">Planned integrations</p>
+              <p>
+                Firebase catalog and identity services are planned. PyTorch and
+                OpenCLIP are the model direction; image retrieval is not
+                connected.
+              </p>
+            </div>
+          </div>
         </PageContainer>
       </section>
       <section className="paper section technology-roadmap">
         <PageContainer>
           <div className="editorial-heading">
-            <p className="eyebrow">Beyond the foundation</p>
-            <h2>A roadmap with purpose.</h2>
+            <p className="eyebrow">Planned intelligence</p>
+            <h2>Research directions, clearly marked.</h2>
           </div>
           <IntelligenceStory />
         </PageContainer>
@@ -406,7 +426,7 @@ export function ContactPage() {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus(
-      "Your message preview is ready. Nothing was sent or stored; a connected contact channel will be added later.",
+      "Your message preview is ready. Nothing was sent or stored.",
     );
   }
   return (
@@ -506,13 +526,109 @@ export function ContactPage() {
 export function EmptyCollectionPage({ kind }: { kind: "cart" | "wishlist" }) {
   const wishlist = kind === "wishlist";
   useDocumentTitle(wishlist ? "Your inspiration" : "Your bag");
+  const experience = useExperience();
+  const savedProducts = presentationProducts.filter((product) =>
+    experience.wishlist.includes(product.id),
+  );
+  const subtotal = experience.cart.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  );
+
+  if (wishlist && savedProducts.length > 0) {
+    return (
+      <div className="route-enter saved-styles-page">
+        <PageContainer>
+          <section className="saved-styles-heading section">
+            <p className="eyebrow">PERSONAL SPACE / SAVED STYLES</p>
+            <h1>KEEP WHAT MOVES YOU.</h1>
+            <p>Styles saved during this visit. Reloading clears this list.</p>
+          </section>
+          <div className="collection-grid retail-grid saved-styles-grid">
+            {savedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          <p className="quiet-note retail-disclaimer">
+            Presentation concepts only. Saved styles are held in memory for this visit.
+          </p>
+        </PageContainer>
+      </div>
+    );
+  }
+
+  if (!wishlist && experience.cart.length > 0) {
+    return (
+      <div className="route-enter cart-page">
+        <PageContainer>
+          <section className="cart-heading section">
+            <p className="eyebrow">SHOPPING / VISIT-ONLY BAG</p>
+            <h1>YOUR NEXT MOVE.</h1>
+            <p>Presentation selections held in memory for this visit.</p>
+          </section>
+          <div className="cart-layout">
+            <div className="cart-lines">
+              {experience.cart.map((line) => (
+                <article className="cart-line" key={`${line.product.id}:${line.size}`}>
+                  <Link className="cart-line__image" to={`/product/${line.product.id}`}>
+                    <PresentationImage
+                      asset={line.product.style}
+                      alt={`${line.product.name} presentation study`}
+                      sizes="(max-width: 600px) 30vw, 180px"
+                    />
+                  </Link>
+                  <div className="cart-line__details">
+                    <p className="eyebrow muted">{line.product.code} / DESIGN STUDY</p>
+                    <Link to={`/product/${line.product.id}`}><h2>{line.product.name}</h2></Link>
+                    <p className="cart-line__size">Presentation size / {line.size}</p>
+                    <div className="cart-line__actions">
+                      <div className="product-quantity" aria-label={`Quantity for ${line.product.name}`}>
+                        <button
+                          type="button"
+                          aria-label="Decrease quantity"
+                          onClick={() => experience.updateCartQuantity(line.product.id, line.size, line.quantity - 1)}
+                        >−</button>
+                        <output aria-live="polite">{line.quantity}</output>
+                        <button
+                          type="button"
+                          aria-label="Increase quantity"
+                          onClick={() => experience.updateCartQuantity(line.product.id, line.size, line.quantity + 1)}
+                        >+</button>
+                      </div>
+                      <button
+                        type="button"
+                        className="cart-line__remove"
+                        onClick={() => experience.removeCartItem(line.product.id, line.size)}
+                      >Remove</button>
+                    </div>
+                  </div>
+                  <span className="cart-line__price">
+                    {formatPrice(line.product.price * line.quantity, line.product.currency)}
+                    <span>Illustrative</span>
+                  </span>
+                </article>
+              ))}
+            </div>
+            <aside className="cart-summary">
+              <p className="eyebrow">PRESENTATION SUMMARY</p>
+              <div><span>Illustrative subtotal</span><strong>{formatPrice(subtotal, "USD")}</strong></div>
+              <p className="quiet-note">No shipping, taxes, checkout, or payment are calculated.</p>
+              <Link className="button button--outline" to="/shop">Continue exploring <Icon name="arrow" size={18} /></Link>
+            </aside>
+          </div>
+          <p className="quiet-note retail-disclaimer">This visit-only bag clears when the page is reloaded. No order is created.</p>
+        </PageContainer>
+      </div>
+    );
+  }
+
   return (
     <div className="route-enter empty-collection paper">
       <PageContainer>
         <section className="empty-collection__hero">
           <div>
             <p className="eyebrow">
-              {wishlist ? "Your wishlist" : "Your bag"} / A fresh start
+              {wishlist ? "PERSONAL SPACE / SAVED STYLES" : "SHOPPING / YOUR BAG"}
             </p>
             <h1>
               {wishlist ? (
@@ -533,16 +649,16 @@ export function EmptyCollectionPage({ kind }: { kind: "cart" | "wishlist" }) {
             </h1>
             <p>
               {wishlist
-                ? "A place for the styles that stay with you. Your inspiration starts with a little exploration."
-                : "Every new direction starts somewhere. Explore the footwear perspective shaping HEXSHOES."}
+                ? "A considered place for the concepts that catch your eye. Start with a direction that feels like you."
+                : "Every new direction starts somewhere. Explore the footwear studies shaping the HEXSHOES perspective."}
             </p>
             <Link to="/shop" className="button">
               Explore collection <Icon name="arrow" size={18} />
             </Link>
             <p className="quiet-note">
               {wishlist
-                ? "Wishlist saving will arrive with the collection."
-                : "Purchasing will arrive with a verified collection."}
+                ? "Saved styles stay in memory for this visit and clear when the page is reloaded."
+                : "The bag is a local presentation only. Checkout and payment are not available."}
             </p>
           </div>
           <PresentationImage
