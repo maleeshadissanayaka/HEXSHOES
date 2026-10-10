@@ -126,6 +126,20 @@
   border-color: #34373f;
   background: #17191e;
 }
+.navbar .icon-button--authenticated {
+  position: relative;
+}
+.navbar .icon-button--authenticated::after {
+  content: "";
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #08090a;
+  border-radius: 50%;
+  background: #7890ff;
+}
 .navbar__utilities {
   display: flex;
   gap: 2px;

@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { PageContainer } from "../components/shared/PageContainer";
 import { PresentationImage } from "../components/shared/PresentationImage";
 import { ProductCard } from "../components/products/ProductCard";
 import { Icon } from "../components/shared/Icon";
-import { useExperience } from "../hooks/useExperience";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { FootwearStyle } from "../types/product";
 import { useProducts } from "../hooks/useProducts";
@@ -202,83 +200,6 @@ export function NewDropsPage() {
           <p className="quiet-note retail-disclaimer">
             Presentation concepts and illustrative prices only. No inventory,
             checkout, or payment is connected.
-          </p>
-        </PageContainer>
-      </section>
-    </div>
-  );
-}
-
-const accountModules = [
-  {
-    index: "01",
-    title: "Saved Styles",
-    description: "Return to the footwear concepts you have saved this visit.",
-    to: "/wishlist",
-    action: "View saved styles",
-  },
-  {
-    index: "02",
-    title: "Recent Discovery",
-    description: "Pick up with the latest HEXSHOES presentation studies.",
-    to: "/new-drops",
-    action: "Explore new drops",
-  },
-  {
-    index: "03",
-    title: "Fit Preferences",
-    description: "Choose a presentation size while exploring a product concept.",
-    to: "/shop",
-    action: "Explore footwear",
-  },
-];
-
-export function AccountPage() {
-  useDocumentTitle("Your HEX space");
-  const { wishlist } = useExperience();
-  return (
-    <div className="route-enter account-page">
-      <section className="account-intro section">
-        <PageContainer>
-          <p className="eyebrow">ACCOUNT / PERSONAL SPACE</p>
-          <h1>YOUR HEX SPACE.</h1>
-          <p className="account-intro__copy">
-            A considered home for the styles and ideas that move you.
-          </p>
-          <span className="account-intro__mark" aria-hidden="true">H<span>+</span></span>
-        </PageContainer>
-      </section>
-      <section className="account-modules section">
-        <PageContainer>
-          <div className="account-modules__grid">
-            {accountModules.map((module) => (
-              <article key={module.index}>
-                <span className="eyebrow muted">{module.index} / PERSONAL SPACE</span>
-                <h2>{module.title}</h2>
-                <p>{module.description}</p>
-                {module.title === "Saved Styles" && wishlist.length > 0 && (
-                  <span className="account-module__count">{wishlist.length} saved this visit</span>
-                )}
-                <Link className="text-link" to={module.to}>
-                  {module.action} <Icon name="arrow" size={18} />
-                </Link>
-              </article>
-            ))}
-            <article className="account-access">
-              <span className="eyebrow muted">04 / ACCOUNT ACCESS</span>
-              <h2>Access, with care.</h2>
-              <p>
-                Account services are not connected. No sign-in or personal
-                information is collected here.
-              </p>
-              <span className="account-access__status eyebrow">
-                SECURE SIGN-IN WILL BE ENABLED WITH ACCOUNT SERVICES.
-              </span>
-            </article>
-          </div>
-          <p className="quiet-note account-note">
-            Saved styles are held in this visit only and clear when the page is
-            reloaded.
           </p>
         </PageContainer>
       </section>

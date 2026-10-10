@@ -1,11 +1,12 @@
 # HEXSHOES Frontend
 
-The HEXSHOES customer-facing storefront: an editorial footwear presentation with local, illustrative interactions. Product imagery and prices are design fixtures. Connected commerce, authentication, and AI services are not active.
+The HEXSHOES customer-facing storefront: an editorial footwear presentation backed by the Express product API and Firestore catalog. Firebase Authentication provides browser-based account access; commerce and AI services are not active.
 
 ## Stack
 
 - React 19, TypeScript 6, and Vite 8
 - React Router 7 through `react-router-dom`
+- Firebase Web SDK for client-side authentication
 - Plain CSS, component styles, and shared CSS design tokens
 - Oxlint for linting; TypeScript strict mode and unchecked indexed access checks
 - CSS animations and IntersectionObserver for restrained motion
@@ -32,6 +33,32 @@ npm run preview -- --host 127.0.0.1
 ```
 
 `build` checks TypeScript and produces `dist/`. Generated output and dependencies are ignored by Git. A future production host must serve `index.html` for application routes because the frontend uses BrowserRouter.
+
+## Firebase Authentication
+
+Copy `frontend/.env.example` to a local `.env` and provide the public Firebase Web app values:
+
+```dotenv
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+These values identify the browser Firebase app; they are not Firebase Admin credentials. Never put a service-account key, Admin private key, or Admin client email in the frontend.
+
+In Firebase Console, enable both providers before live testing:
+
+1. Open **Authentication → Sign-in method**.
+2. Enable **Email/Password**.
+3. Enable **Google** and complete its required project support details.
+4. Ensure the development and deployed domains are listed as authorized domains.
+
+Current account features include email/password registration and sign-in, Google popup sign-in, Firebase-managed local browser persistence, session restoration, sign-out, friendly errors, and authenticated account details. `/account` remains public so signed-out visitors can access the forms.
+
+Backend ID-token verification and protected API routes are not implemented yet. No Firestore user-profile document is created, and cart/wishlist data remains visit-local rather than account-persistent. ID tokens are not manually stored by the application.
 
 ## Route overview
 

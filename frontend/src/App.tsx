@@ -16,11 +16,11 @@ import {
   EmptyCollectionPage,
 } from "./pages/ExperiencePages";
 import {
-  AccountPage,
   MenPage,
   NewDropsPage,
   WomenPage,
 } from "./pages/RetailPages";
+import { AccountPage } from "./pages/AccountPage";
 import { ProductPage } from "./pages/ProductPage";
 import "./styles/premium.css";
 import "./styles/retail-pages.css";

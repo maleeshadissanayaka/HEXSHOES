@@ -5,11 +5,13 @@ import { useExperience } from "../../hooks/useExperience";
 import { IconButton } from "../shared/IconButton";
 import { PageContainer } from "../shared/PageContainer";
 import { MobileMenu } from "./MobileMenu";
+import { useAuth } from "../../auth/useAuth";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { open } = useExperience();
+  const { authenticated } = useAuth();
   const { pathname } = useLocation();
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -58,9 +60,9 @@ export function Navbar() {
             <IconButton icon="bag" label="Cart" to="/cart" />
             <IconButton
               icon="user"
-              label="Account"
+              label={authenticated ? "Account — signed in" : "Account"}
               to="/account"
-              className="desktop-utility"
+              className={`desktop-utility ${authenticated ? "icon-button--authenticated" : ""}`}
             />
             <IconButton
               icon="menu"
