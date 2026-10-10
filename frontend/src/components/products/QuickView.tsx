@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import type { PresentationProduct } from "../../types/product";
+import type { Product } from "../../types/product";
 import { useExperience } from "../../hooks/useExperience";
 import { formatPrice } from "../../utils/formatPrice";
 import { PresentationImage } from "../shared/PresentationImage";
 import { Icon } from "../shared/Icon";
 
-export function QuickView({ product }: { product: PresentationProduct }) {
+export function QuickView({ product }: { product: Product }) {
   const { close, wishlist, toggleWishlist } = useExperience();
   const isSaved = wishlist.includes(product.id);
   return (

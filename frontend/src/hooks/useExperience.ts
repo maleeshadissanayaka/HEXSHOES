@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import type { ExperienceDialog } from "../types/experience";
-import type { CartLine, PresentationProduct } from "../types/product";
+import type { CartLine, Product } from "../types/product";
 export const ExperienceContext = createContext<{
   open: (dialog: ExperienceDialog) => void;
   close: () => void;
@@ -8,7 +8,7 @@ export const ExperienceContext = createContext<{
   wishlist: string[];
   toggleWishlist: (productId: string) => void;
   addToCart: (
-    product: PresentationProduct,
+    product: Product,
     size: string,
     quantity: number,
   ) => void;

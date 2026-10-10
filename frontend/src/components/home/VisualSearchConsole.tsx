@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { PresentationImage } from "../shared/PresentationImage";
 import type { FootwearStyle } from "../../types/product";
 import { Icon } from "../shared/Icon";
+import { useProducts } from "../../hooks/useProducts";
 
 const samples: { asset: FootwearStyle; name: string }[] = [
   { asset: "runner", name: "Movement" },
@@ -57,6 +58,7 @@ export function VisualSearchConsole({
   const [upload, setUpload] = useState<{ url: string; name: string } | null>(null);
   const [uploadMessage, setUploadMessage] = useState("");
   const id = useId();
+  const { data: products } = useProducts();
   const visibleStages = compactPipeline ? homepageStages : stages;
   useEffect(() => {
     if (!upload) return;
@@ -157,16 +159,16 @@ export function VisualSearchConsole({
         <span className="quiet-note">No similarity scores</span>
       </div>
       <ol className="discovery-console__results">
-        {samples.map((item, index) => (
-          <li key={item.asset}>
+        {products.slice(0, 3).map((product, index) => (
+          <li key={product.id}>
             <PresentationImage
-              asset={item.asset}
-              alt={`${item.name} concept, not a search result`}
+              asset={product.style}
+              alt={`${product.name} catalog style, not a search result`}
               sizes="(max-width: 600px) 25vw, 160px"
             />
             <div>
               <span className="eyebrow">0{index + 1}</span>
-              <span>{item.name}</span>
+              <span>{product.name}</span>
             </div>
           </li>
         ))}

@@ -22,6 +22,13 @@ const parseOrigin = (value: string | undefined): string => {
   }
 };
 
+const frontendOrigin = parseOrigin(process.env.FRONTEND_ORIGIN);
+const developmentOrigins = new Set([
+  frontendOrigin,
+  "http://127.0.0.1:5173",
+  "http://localhost:5173",
+]);
+
 const parseProductDataSource = (value: string | undefined): ProductDataSource => {
   if (value === undefined || value === "fixture") return "fixture";
   if (value === "firestore") return "firestore";
@@ -31,8 +38,16 @@ const parseProductDataSource = (value: string | undefined): ProductDataSource =>
 export const env = Object.freeze({
   port: parsePort(process.env.PORT),
   nodeEnv: parseNodeEnvironment(process.env.NODE_ENV),
-  frontendOrigin: parseOrigin(process.env.FRONTEND_ORIGIN),
-  productDataSource: parseProductDataSource(process.env.PRODUCT_DATA_SOURCE),
+  frontendOrigin,
+  allowedFrontendOrigins: Object.freeze(
+    parseNodeEnvironment(process.env.NODE_ENV) === "production"
+      ? [frontendOrigin]
+      : [...developmentOrigins],
+  ),
+  productDataSource:
+    process.env.VITEST === "true"
+      ? "fixture"
+      : parseProductDataSource(process.env.PRODUCT_DATA_SOURCE),
   firebase: Object.freeze({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,

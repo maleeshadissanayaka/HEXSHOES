@@ -51,4 +51,30 @@ describe("HEXSHOES API", () => {
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0].id).toBe("hx-01");
   });
+
+  it("filters products by audience", async () => {
+    const response = await request(app).get("/api/products?audience=unisex");
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(4);
+    expect(response.body.data.every((product: { audience: string }) => product.audience === "unisex")).toBe(true);
+  });
+
+  it("filters new drops", async () => {
+    const response = await request(app).get("/api/products?new=true");
+    expect(response.status).toBe(200);
+    expect(response.body.data.map((product: { id: string }) => product.id)).toEqual(["hx-01", "hx-02"]);
+  });
+
+  it.each(["http://127.0.0.1:5173", "http://localhost:5173"])(
+    "allows the development frontend origin %s",
+    async (origin) => {
+      const response = await request(app).get("/api/products").set("Origin", origin);
+      expect(response.headers["access-control-allow-origin"]).toBe(origin);
+    },
+  );
+
+  it("does not allow an unrelated CORS origin", async () => {
+    const response = await request(app).get("/api/products").set("Origin", "https://example.com");
+    expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+  });
 });

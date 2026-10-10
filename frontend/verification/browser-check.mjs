@@ -471,6 +471,23 @@ try {
     assert(result.fontsLoaded, `Web fonts did not load: ${route}`);
     if (route === "/not-a-page" || route === "/product/missing")
       assert.equal(result.heading, "This path ends here.");
+    if (route === "/product/missing") {
+      const missingProductResponse = failedResponses.find((response) => {
+        const url = new URL(response.url);
+        return url.pathname === "/api/products/missing";
+      });
+      assert.equal(
+        missingProductResponse?.status,
+        404,
+        "The intentional missing-product API request must return 404",
+      );
+      checks.push({
+        name: "Missing product API 404 renders product-not-found experience",
+        apiStatus: missingProductResponse.status,
+        heading: result.heading,
+        passed: true,
+      });
+    }
     checks.push({ name: `Route ${route}`, ...result });
   }
 
@@ -1079,11 +1096,23 @@ try {
     name: "Reduced motion reveals content and suppresses entrance motion",
     ...reducedMotion,
   });
+  const expectedMissingProductResponses = failedResponses.filter((response) => {
+    const url = new URL(response.url);
+    return response.status === 404 && url.pathname === "/api/products/missing";
+  });
+  assert.equal(
+    expectedMissingProductResponses.length,
+    1,
+    "Expected exactly one intentional missing-product 404 response",
+  );
+  const unexpectedFailedResponses = failedResponses.filter(
+    (response) => !expectedMissingProductResponses.includes(response),
+  );
   assert.equal(consoleErrors.length, 0, "Browser console/runtime errors");
   assert.equal(
-    failedResponses.length,
+    unexpectedFailedResponses.length,
     0,
-    `HTTP responses failed: ${JSON.stringify(failedResponses)}`,
+    `Unexpected HTTP responses failed: ${JSON.stringify(unexpectedFailedResponses)}`,
   );
   assert.equal(
     networkErrors.filter((error) => !error.canceled).length,
@@ -1101,6 +1130,8 @@ try {
         consoleErrors,
         networkErrors,
         failedResponses,
+        expectedMissingProductResponses,
+        unexpectedFailedResponses,
         mutationRequests,
       },
       null,

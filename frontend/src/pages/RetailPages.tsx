@@ -6,8 +6,10 @@ import { ProductCard } from "../components/products/ProductCard";
 import { Icon } from "../components/shared/Icon";
 import { useExperience } from "../hooks/useExperience";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import { presentationProducts } from "../data/presentationProducts";
 import type { FootwearStyle } from "../types/product";
+import { useProducts } from "../hooks/useProducts";
+import { ProductState } from "../components/products/ProductState";
+import { productsForAudience } from "../services/productCollections";
 
 const filters: { value: "all" | FootwearStyle; label: string }[] = [
   { value: "all", label: "All studies" },
@@ -46,9 +48,17 @@ function CollectionGrid({
   audience: "men" | "women";
 }) {
   const [selected, setSelected] = useState<"all" | FootwearStyle>("all");
-  const products = presentationProducts.filter(
+  const { data: direct, loading: directLoading, error: directError, retry: retryDirect } = useProducts({ audience });
+  const { data: unisex, loading: unisexLoading, error: unisexError, retry: retryUnisex } = useProducts({ audience: "unisex" });
+  const audienceProducts = productsForAudience(audience, [...direct, ...unisex]).filter(
+    (product, index, all) => all.findIndex((item) => item.id === product.id) === index,
+  );
+  const products = audienceProducts.filter(
     (product) => selected === "all" || product.style === selected,
   );
+  const loading = directLoading || unisexLoading;
+  const error = directError ?? unisexError;
+  const retry = () => { retryDirect(); retryUnisex(); };
   return (
     <section className="retail-products section">
       <PageContainer>
@@ -57,17 +67,17 @@ function CollectionGrid({
             <p className="eyebrow">{audience.toUpperCase()} / Design collection</p>
             <h2>Four directions. Room to move.</h2>
           </div>
-          <span className="eyebrow muted">Presentation studies / 04</span>
+          <span className="eyebrow muted">Presentation studies / {String(audienceProducts.length).padStart(2, "0")}</span>
         </div>
         <div className="retail-products__toolbar">
           <CollectionFilters selected={selected} onChange={setSelected} />
           <span className="eyebrow muted">{products.length} design studies</span>
         </div>
-        <div className="collection-grid retail-grid">
+        {loading ? <ProductState kind="loading" /> : error ? <ProductState kind="error" onRetry={retry} /> : products.length === 0 ? <ProductState kind="empty" /> : <div className="collection-grid retail-grid">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
-        </div>
+        </div>}
         <p className="quiet-note retail-disclaimer">
           Original presentation concepts with illustrative prices. These studies
           are not available to purchase.
@@ -152,6 +162,7 @@ export function WomenPage() {
 
 export function NewDropsPage() {
   useDocumentTitle("New drops");
+  const { data: products, loading, error, retry } = useProducts({ new: true });
   return (
     <div className="route-enter new-drops-page">
       <section className="new-drops-intro">
@@ -177,17 +188,17 @@ export function NewDropsPage() {
       <section className="new-drops-products section">
         <PageContainer>
           <div className="new-drops-products__heading">
-            <p className="eyebrow">Current presentation / 04 styles</p>
+            <p className="eyebrow">Current presentation / {String(products.length).padStart(2, "0")} styles</p>
             <p>Explore each study, open a quick view, or save a style for this visit.</p>
           </div>
-          <div className="collection-grid retail-grid new-drops-grid">
-            {presentationProducts.map((product, index) => (
+          {loading ? <ProductState kind="loading" /> : error ? <ProductState kind="error" onRetry={retry} /> : products.length === 0 ? <ProductState kind="empty" /> : <div className="collection-grid retail-grid new-drops-grid">
+            {products.map((product, index) => (
               <div className="new-drops-item" key={product.id}>
                 <span className="new-drops-item__index eyebrow">0{index + 1} / {product.code}</span>
                 <ProductCard product={product} />
               </div>
             ))}
-          </div>
+          </div>}
           <p className="quiet-note retail-disclaimer">
             Presentation concepts and illustrative prices only. No inventory,
             checkout, or payment is connected.

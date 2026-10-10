@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
-import { presentationProducts } from "../../data/presentationProducts";
+import { useProducts } from "../../hooks/useProducts";
+import { ProductState } from "../products/ProductState";
 import { ProductCard } from "../products/ProductCard";
 import { Icon } from "../shared/Icon";
 import { PageContainer } from "../shared/PageContainer";
 import { Reveal } from "../shared/Reveal";
 import { SectionHeader } from "../shared/SectionHeader";
 export function NewDrops() {
+  const { data: products, loading, error, retry } = useProducts({ new: true });
   return (
     <section className="new-drops section paper">
       <PageContainer>
@@ -21,13 +23,13 @@ export function NewDrops() {
             }
           />
         </Reveal>
-        <div className="products-grid">
-          {presentationProducts.map((product, i) => (
+        {loading ? <ProductState kind="loading" /> : error ? <ProductState kind="error" onRetry={retry} /> : products.length === 0 ? <ProductState kind="empty" /> : <div className="products-grid">
+          {products.slice(0, 4).map((product, i) => (
             <Reveal key={product.id} stagger={i as 0 | 1 | 2 | 3}>
               <ProductCard product={product} />
             </Reveal>
           ))}
-        </div>
+        </div>}
         <p className="section-note eyebrow">
           Generated presentation concepts & illustrative USD prices / Not
           available for purchase

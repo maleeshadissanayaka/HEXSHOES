@@ -1,6 +1,6 @@
-import type { PresentationProduct } from "./product";
+import type { Product } from "./product";
 export type ExperienceDialog =
-  | { kind: "quick-view"; product: PresentationProduct }
+  | { kind: "quick-view"; product: Product }
   | { kind: "campaign" }
   | { kind: "assistant" }
   | { kind: "search" }

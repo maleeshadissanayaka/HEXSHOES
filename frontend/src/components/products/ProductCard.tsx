@@ -1,12 +1,12 @@
 import { useExperience } from "../../hooks/useExperience";
 import { Link } from "react-router-dom";
-import type { PresentationProduct } from "../../types/product";
+import type { Product } from "../../types/product";
 import { formatPrice } from "../../utils/formatPrice";
 import { Icon } from "../shared/Icon";
 import { PresentationImage } from "../shared/PresentationImage";
 import "./product-card.css";
 
-export function ProductCard({ product }: { product: PresentationProduct }) {
+export function ProductCard({ product }: { product: Product }) {
   const { open, wishlist, toggleWishlist } = useExperience();
   const isSaved = wishlist.includes(product.id);
   return (

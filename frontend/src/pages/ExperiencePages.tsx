@@ -7,7 +7,8 @@ import { ProductCard } from "../components/products/ProductCard";
 import { VisualSearchConsole } from "../components/home/VisualSearchConsole";
 import { IntelligenceStory } from "../components/home/IntelligenceStory";
 import { Newsletter } from "../components/home/Newsletter";
-import { presentationProducts } from "../data/presentationProducts";
+import { useProducts } from "../hooks/useProducts";
+import { ProductState } from "../components/products/ProductState";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { Icon } from "../components/shared/Icon";
 import { useExperience } from "../hooks/useExperience";
@@ -15,7 +16,7 @@ import { formatPrice } from "../utils/formatPrice";
 
 const directions = [
   { value: "", label: "All footwear", style: "" },
-  { value: "run", label: "Running", style: "runner" },
+  { value: "running", label: "Running", style: "runner" },
   { value: "trail", label: "Trail", style: "trail" },
   { value: "lifestyle", label: "Lifestyle", style: "mono" },
   { value: "slides", label: "Slides", style: "slide" },
@@ -26,8 +27,8 @@ export function ShopPage() {
   const direction =
     directions.find((item) => item.value === params.get("category")) ??
     directions[0]!;
-  const products = presentationProducts.filter(
-    (item) => !direction.style || item.style === direction.style,
+  const { data: products, loading, error, retry } = useProducts(
+    direction.value ? { category: direction.value } : {},
   );
   return (
     <div className="route-enter collection-page">
@@ -70,11 +71,11 @@ export function ShopPage() {
             </div>
             <span className="eyebrow">Form / Function / Possibility</span>
           </div>
-          <div className="collection-grid">
+          {loading ? <ProductState kind="loading" /> : error ? <ProductState kind="error" onRetry={retry} /> : products.length === 0 ? <ProductState kind="empty" /> : <div className="collection-grid">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
-          </div>
+          </div>}
           <p className="quiet-note collection-note">
             Original presentation studies with illustrative prices. A first look
             at the HEXSHOES direction; purchasing is not yet available.
@@ -527,7 +528,8 @@ export function EmptyCollectionPage({ kind }: { kind: "cart" | "wishlist" }) {
   const wishlist = kind === "wishlist";
   useDocumentTitle(wishlist ? "Your inspiration" : "Your bag");
   const experience = useExperience();
-  const savedProducts = presentationProducts.filter((product) =>
+  const { data: catalog, loading, error, retry } = useProducts();
+  const savedProducts = catalog.filter((product) =>
     experience.wishlist.includes(product.id),
   );
   const subtotal = experience.cart.reduce(
@@ -535,6 +537,8 @@ export function EmptyCollectionPage({ kind }: { kind: "cart" | "wishlist" }) {
     0,
   );
 
+  if (wishlist && loading) return <div className="route-enter saved-styles-page"><PageContainer><ProductState kind="loading" /></PageContainer></div>;
+  if (wishlist && error) return <div className="route-enter saved-styles-page"><PageContainer><ProductState kind="error" onRetry={retry} /></PageContainer></div>;
   if (wishlist && savedProducts.length > 0) {
     return (
       <div className="route-enter saved-styles-page">
@@ -674,7 +678,7 @@ export function EmptyCollectionPage({ kind }: { kind: "cart" | "wishlist" }) {
             <h2>Find your starting point.</h2>
           </div>
           <div className="collection-grid">
-            {presentationProducts.slice(0, 2).map((product) => (
+            {catalog.slice(0, 2).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

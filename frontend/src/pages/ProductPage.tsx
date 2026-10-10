@@ -6,10 +6,12 @@ import { ProductCard } from "../components/products/ProductCard";
 import { Icon } from "../components/shared/Icon";
 import { useExperience } from "../hooks/useExperience";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import { presentationProducts } from "../data/presentationProducts";
 import { formatPrice } from "../utils/formatPrice";
 import type { PresentationMediaName } from "../data/presentationMedia";
 import { NotFoundPage } from "./ShellPages";
+import { useProduct, useProducts } from "../hooks/useProducts";
+import { ProductState } from "../components/products/ProductState";
+import { ApiError } from "../services/api/apiClient";
 
 const galleryLabels: Record<PresentationMediaName, string> = {
   hero: "Campaign study",
@@ -40,12 +42,13 @@ const designNotes = {
   },
 } as const;
 
-const sizes = ["US 6", "US 7", "US 8", "US 9", "US 10", "US 11", "US 12"];
+const fallbackSizes = [6, 7, 8, 9, 10, 11, 12];
 const gallery = ["product", "story", "texture"] as const;
 
 export function ProductPage() {
   const { id } = useParams();
-  const product = presentationProducts.find((item) => item.id === id);
+  const { data: product, loading, error, retry } = useProduct(id);
+  const { data: catalog } = useProducts();
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -53,12 +56,16 @@ export function ProductPage() {
   const { addToCart, wishlist, toggleWishlist } = useExperience();
   useDocumentTitle(product?.name ?? "Product concept");
 
+  if (loading) return <div className="route-enter product-page"><PageContainer><ProductState kind="loading" /></PageContainer></div>;
+  if (error instanceof ApiError && error.status === 404) return <NotFoundPage />;
+  if (error) return <div className="route-enter product-page"><PageContainer><ProductState kind="error" onRetry={retry} /></PageContainer></div>;
   if (!product) return <NotFoundPage />;
 
   const media = gallery[galleryIndex] === "product" ? product.style : gallery[galleryIndex]!;
   const isSaved = wishlist.includes(product.id);
-  const related = presentationProducts.filter((item) => item.id !== product.id);
+  const related = catalog.filter((item) => item.id !== product.id);
   const note = designNotes[product.style];
+  const sizes = product.sizes.length > 0 ? product.sizes : fallbackSizes;
 
   const addPresentationItem = () => {
     if (!selectedSize) {
@@ -159,13 +166,13 @@ export function ProductPage() {
                     <button
                       type="button"
                       key={size}
-                      aria-pressed={selectedSize === size}
+                      aria-pressed={selectedSize === `US ${size}`}
                       onClick={() => {
-                        setSelectedSize(size);
+                        setSelectedSize(`US ${size}`);
                         setStatus("");
                       }}
                     >
-                      {size.replace("US ", "")}
+                      {size}
                     </button>
                   ))}
                 </div>
