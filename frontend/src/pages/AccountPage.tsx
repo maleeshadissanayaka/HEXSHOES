@@ -8,9 +8,10 @@ import { PageContainer } from "../components/shared/PageContainer";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useExperience } from "../hooks/useExperience";
 import { useBackendSession } from "../auth/useBackendSession";
+import { useProfile } from "../auth/useProfile";
 
 const accountModules = [
-  { index: "01", title: "Saved Styles", description: "Return to the footwear concepts saved during this visit.", to: "/wishlist", action: "View saved styles" },
+  { index: "01", title: "Saved Styles", description: "Return to your saved footwear concepts across signed-in sessions.", to: "/wishlist", action: "View saved styles" },
   { index: "02", title: "Recent Discovery", description: "Pick up with the latest HEXSHOES presentation studies.", to: "/new-drops", action: "Explore new drops" },
   { index: "03", title: "Fit Preferences", description: "Choose a presentation size while exploring a product concept.", to: "/shop", action: "Explore footwear" },
 ] as const;
@@ -50,7 +51,7 @@ function AuthForm() {
       <div className="account-auth__copy">
         <p className="eyebrow">ACCOUNT ACCESS / SECURE SESSION</p>
         <h2>{mode === "signin" ? "WELCOME BACK." : "CREATE YOUR SPACE."}</h2>
-        <p>One considered place for your HEXSHOES account. Saved styles and bag selections remain visit-only for now.</p>
+        <p>One considered place for your HEXSHOES account. Sign in to keep saved styles across sessions; bag selections remain visit-only.</p>
       </div>
       <div className="account-auth__panel">
         <div className="account-auth__tabs" role="tablist" aria-label="Account access">
@@ -80,7 +81,9 @@ export function AccountPage() {
   const { wishlist } = useExperience();
   const state = accountViewState(auth.loading, auth.user);
   const backendSession = useBackendSession(auth.user);
+  const profile = useProfile(auth.user);
   const [signOutError, setSignOutError] = useState("");
+  const [profileSaved, setProfileSaved] = useState("");
   return <div className="route-enter account-page">
     <section className="account-intro section"><PageContainer>
       <p className="eyebrow">ACCOUNT / PERSONAL SPACE</p><h1>YOUR HEX SPACE.</h1>
@@ -91,14 +94,18 @@ export function AccountPage() {
     {state === "signed-out" && <AuthForm />}
     {state === "signed-in" && auth.user && <>
       <section className="account-profile section"><PageContainer className="account-profile__layout">
-        <div><p className="eyebrow">AUTHENTICATED / ACTIVE SESSION</p><h2>{auth.user.displayName || "HEXSHOES MEMBER"}</h2><p>{auth.user.email ?? "Email unavailable"}</p></div>
+        <div><p className="eyebrow">AUTHENTICATED / ACTIVE SESSION</p><h2>{profile.profile?.displayName || auth.user.displayName || "HEXSHOES MEMBER"}</h2><p>{profile.profile?.email ?? auth.user.email ?? "Email unavailable"}</p>
+          <form className="account-profile__name" onSubmit={(event) => { event.preventDefault(); const displayName = String(new FormData(event.currentTarget).get("displayName") ?? ""); setProfileSaved(""); void profile.saveDisplayName(displayName).then(() => setProfileSaved("Profile saved.")).catch(() => undefined); }}>
+            <label htmlFor="profile-display-name">Display name</label><input key={profile.profile?.updatedAt ?? auth.user.uid} id="profile-display-name" name="displayName" defaultValue={profile.profile?.displayName ?? auth.user.displayName ?? ""} minLength={1} maxLength={80} disabled={profile.loading} required /><button className="button button--outline" type="submit" disabled={profile.loading}>SAVE PROFILE</button>
+          </form><p role="status" className="quiet-note">{profileSaved || profile.message}</p>
+        </div>
         <dl><div><dt>Provider</dt><dd>{providerLabel(auth.user)}</dd></div><div><dt>Account status</dt><dd>{auth.user.emailVerified ? "Email verified" : "Active"}</dd></div><div><dt>Backend session</dt><dd className={`backend-session backend-session--${backendSession.status}`}>{backendSession.status === "verified" ? "Verified" : backendSession.status === "loading" ? "Verifying…" : "Unavailable"}</dd></div></dl>
         <button className="button button--outline" type="button" onClick={() => { setSignOutError(""); void auth.signOutUser().catch((error: unknown) => setSignOutError(error instanceof Error ? error.message : "Sign out failed.")); }}>SIGN OUT</button>
         <p className="account-auth__error" role="alert">{signOutError || backendSession.message}</p>
       </PageContainer></section>
       <section className="account-modules section"><PageContainer><div className="account-modules__grid">
-        {accountModules.map((module) => <article key={module.index}><span className="eyebrow muted">{module.index} / PERSONAL SPACE</span><h2>{module.title}</h2><p>{module.description}</p>{module.title === "Saved Styles" && wishlist.length > 0 && <span className="account-module__count">{wishlist.length} saved this visit</span>}<Link className="text-link" to={module.to}>{module.action} <Icon name="arrow" size={18} /></Link></article>)}
-      </div><p className="quiet-note account-note">Account access persists through Firebase. Saved styles and bag selections remain in memory for this visit only.</p></PageContainer></section>
+        {accountModules.map((module) => <article key={module.index}><span className="eyebrow muted">{module.index} / PERSONAL SPACE</span><h2>{module.title}</h2><p>{module.description}</p>{module.title === "Saved Styles" && wishlist.length > 0 && <span className="account-module__count">{wishlist.length} saved</span>}<Link className="text-link" to={module.to}>{module.action} <Icon name="arrow" size={18} /></Link></article>)}
+      </div><p className="quiet-note account-note">Your profile and saved styles persist securely when signed in. Bag selections remain in memory for this visit only.</p></PageContainer></section>
     </>}
   </div>;
 }

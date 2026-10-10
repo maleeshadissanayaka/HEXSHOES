@@ -1,6 +1,6 @@
 import type { User } from "firebase/auth";
-import { ApiError, apiGet } from "./apiClient";
-import { authenticatedGet } from "./authenticatedRequest";
+import { ApiError, apiGet, apiRequest, type ApiRequestOptions } from "./apiClient";
+import { authenticatedGet, authenticatedRequest } from "./authenticatedRequest";
 
 export interface BackendUser {
   uid: string;
@@ -43,4 +43,8 @@ export async function getAuthenticatedUser(user: User | null, signal?: AbortSign
     throw new ApiError("The API returned an invalid authentication response.");
   }
   return parseBackendUser(response.data);
+}
+
+export function authenticatedApiRequest(user: User | null, path: string, options: ApiRequestOptions = {}) {
+  return authenticatedRequest(user, apiRequest, path, options);
 }

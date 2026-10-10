@@ -13,17 +13,28 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiGet(
+export interface ApiRequestOptions {
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  signal?: AbortSignal;
+  headers?: Readonly<Record<string, string>>;
+  body?: unknown;
+}
+
+export async function apiRequest(
   path: string,
-  signal?: AbortSignal,
-  headers: Readonly<Record<string, string>> = {},
+  options: ApiRequestOptions = {},
 ): Promise<unknown> {
   let response: Response;
   try {
     response = await fetch(`${apiConfig.baseUrl}${path}`, {
-      method: "GET",
-      headers: { Accept: "application/json", ...headers },
-      signal,
+      method: options.method ?? "GET",
+      headers: {
+        Accept: "application/json",
+        ...(options.body === undefined ? {} : { "Content-Type": "application/json" }),
+        ...options.headers,
+      },
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      signal: options.signal,
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") throw error;
@@ -41,4 +52,12 @@ export async function apiGet(
   } catch (error) {
     throw new ApiError("The API returned invalid JSON.", response.status, { cause: error });
   }
+}
+
+export function apiGet(
+  path: string,
+  signal?: AbortSignal,
+  headers: Readonly<Record<string, string>> = {},
+): Promise<unknown> {
+  return apiRequest(path, { signal, headers });
 }

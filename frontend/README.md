@@ -60,7 +60,7 @@ Current account features include email/password registration and sign-in, Google
 
 Authenticated account sessions call the protected backend `GET /api/me` route. The current Firebase user supplies a fresh ID token through the Firebase SDK, and the shared API boundary adds it only to that protected request. The application does not log, manually store, or persist ID tokens itself.
 
-Backend identity verification is active, but no Firestore user-profile document is created and cart/wishlist data remains visit-local rather than account-persistent.
+Backend identity verification is active. Signed-in users read and update their persisted display name through the protected profile API. Saved styles use the protected backend wishlist API; signed-out visitors retain an in-memory guest wishlist. On sign-in, guest product IDs are deduplicated and additively merged into the account wishlist, then guest state is cleared only after a successful merge. Signing out clears the account wishlist from memory so it cannot leak into guest or another user session. Cart remains visit-local.
 
 ## Route overview
 
@@ -72,8 +72,8 @@ Backend identity verification is active, but no Firestore user-profile document 
 | `/new-drops`                        | Editorial grid of the four current presentation studies                          |
 | `/product/:id`                      | Product concept detail, gallery, presentation size/quantity, and visit-only bag; unknown IDs show 404 |
 | `/visual-search`                    | Sample-image selection, local upload preview, and an interactive planned-pipeline explanation; no CLIP inference |
-| `/wishlist`, `/cart`               | Visit-only saved styles and bag state held in memory; no persistence or checkout |
-| `/account`                         | Firebase account access and backend-verified session state; no persistent profile data |
+| `/wishlist`, `/cart`               | Account-persistent saved styles (guest fallback) and visit-only bag state; no checkout |
+| `/account`                         | Firebase account access, persisted profile, and backend-verified session state |
 | `/about`                           | Brand manifesto and cinematic movement story |
 | `/technology`                      | Intended architecture, service boundaries, and interactive roadmap |
 | `/contact`                         | Validated local contact-form preview; no submission |
@@ -113,7 +113,7 @@ src/
 
 Archivo handles branding and headings; Space Grotesk handles body/UI; JetBrains Mono is reserved for metadata. Google Fonts loads these with `display=swap`, preconnected origins, and local system fallbacks. External fonts require internet access; self-hosting can be considered in a later production phase.
 
-Reusable components include AnnouncementBar, Navbar, MobileMenu, Footer, PageContainer, SectionHeader, Button, IconButton, SkipLink, PageShell (used by 404), Reveal, ProductCard, QuickView, PremiumModal, CampaignMedia, PresentationImage, VisualSearchConsole, IntelligenceStory, and HexAssistant. ExperienceProvider coordinates dialogs and visit-only cart/wishlist state; the modal lifecycle handles focus and scroll locking.
+Reusable components include AnnouncementBar, Navbar, MobileMenu, Footer, PageContainer, SectionHeader, Button, IconButton, SkipLink, PageShell (used by 404), Reveal, ProductCard, QuickView, PremiumModal, CampaignMedia, PresentationImage, VisualSearchConsole, IntelligenceStory, and HexAssistant. ExperienceProvider coordinates dialogs, visit-local cart state, guest saved styles, and authenticated wishlist synchronization; the modal lifecycle handles focus and scroll locking.
 
 The homepage presents the hero, brand value strip, HEX philosophy, category directions, new drops preview, planned visual search, future intelligence roadmap, story, and newsletter, between the global announcement and footer.
 
@@ -165,6 +165,6 @@ Earlier phase review artifacts remain in their respective verification folders. 
 
 ## Current status and next work
 
-The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, visit-only cart and saved styles, authenticated account access, visual discovery, brand, technology, and contact pages. Bag and saved-style state live in memory for the current visit only; commerce and CLIP inference are not connected.
+The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, visit-only cart, persistent authenticated saved styles, authenticated account profiles, visual discovery, brand, technology, and contact pages. Guest saved styles and bag state live in memory for the current visit; commerce and CLIP inference are not connected.
 
 Remaining work belongs to separately scoped integrations: connect a verified catalog and commerce services, add licensed retail photography, implement authentication and checkout, and connect/evaluate real visual retrieval. Cross-browser Safari/Firefox and hands-on assistive-technology testing are also still recommended.

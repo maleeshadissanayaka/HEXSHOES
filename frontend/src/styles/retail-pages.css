@@ -419,6 +419,27 @@
   background: #090a0d;
   color: white;
 }
+.account-profile__name {
+  display: grid;
+  max-width: 420px;
+  gap: 10px;
+  margin-top: 26px;
+}
+.account-profile__name label {
+  color: #c3c6cd;
+  font-size: 0.72rem;
+}
+.account-profile__name input {
+  min-height: 48px;
+  padding: 11px 13px;
+  border: 1px solid #454954;
+  background: #090a0d;
+  color: white;
+}
+.account-profile__name .button {
+  justify-self: start;
+  margin-top: 4px;
+}
 .account-auth__panel form .button {
   justify-content: space-between;
   margin-top: 12px;

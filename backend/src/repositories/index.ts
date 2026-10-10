@@ -3,6 +3,8 @@ import { env } from "../config/env.js";
 import { FirestoreProductRepository } from "./firestoreProduct.repository.js";
 import { FixtureProductRepository } from "./fixtureProduct.repository.js";
 import type { ProductRepository } from "./product.repository.js";
+import { FirestoreUserRepository } from "./firestoreUser.repository.js";
+import { FirestoreWishlistRepository } from "./firestoreWishlist.repository.js";
 
 export type DatabaseStatus = "FIXTURE" | "FIRESTORE_CONNECTED";
 
@@ -19,3 +21,5 @@ const createProductRepository = (): { repository: ProductRepository; status: Dat
 const selection = createProductRepository();
 export const productRepository = selection.repository;
 export const databaseStatus = selection.status;
+export const userRepository = new FirestoreUserRepository(getFirestoreDatabase);
+export const wishlistRepository = new FirestoreWishlistRepository(getFirestoreDatabase);

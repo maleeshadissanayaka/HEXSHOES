@@ -2,14 +2,27 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DecodedIdToken } from "firebase-admin/auth";
 
-const mocks = vi.hoisted(() => ({ verifyFirebaseIdToken: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  verifyFirebaseIdToken: vi.fn(),
+  ensureProfile: vi.fn(), getProfile: vi.fn(), updateDisplayName: vi.fn(),
+  listWishlist: vi.fn(), addWishlist: vi.fn(), removeWishlist: vi.fn(),
+}));
 vi.mock("../src/services/tokenVerifier.js", () => ({
   verifyFirebaseIdToken: mocks.verifyFirebaseIdToken,
 }));
+vi.mock("../src/services/user.service.js", () => ({ userService: {
+  ensureProfile: mocks.ensureProfile, getProfile: mocks.getProfile, updateDisplayName: mocks.updateDisplayName,
+} }));
+vi.mock("../src/services/wishlist.service.js", () => ({ wishlistService: {
+  list: mocks.listWishlist, add: mocks.addWishlist, remove: mocks.removeWishlist,
+} }));
 import app from "../src/app.js";
 
 describe("HEXSHOES API", () => {
-  beforeEach(() => mocks.verifyFirebaseIdToken.mockReset());
+  beforeEach(() => {
+    for (const mock of Object.values(mocks)) mock.mockReset();
+    mocks.ensureProfile.mockResolvedValue({ uid: "user-123" });
+  });
   it("reports health", async () => {
     const response = await request(app).get("/api/health");
     expect(response.status).toBe(200);
@@ -129,5 +142,43 @@ describe("HEXSHOES API", () => {
     } });
     expect(response.text).not.toContain("valid-token");
     expect(mocks.verifyFirebaseIdToken).toHaveBeenCalledWith("valid-token");
+    expect(mocks.ensureProfile).toHaveBeenCalledWith(expect.objectContaining({ uid: "user-123" }));
+  });
+
+  it.each(["/api/profile", "/api/wishlist"])("protects %s", async (path) => {
+    expect((await request(app).get(path)).status).toBe(401);
+  });
+
+  it("creates and returns the authenticated profile", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValueOnce({ uid: "profile-user", email: "member@example.com", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.getProfile.mockResolvedValueOnce({ uid: "profile-user", email: "member@example.com", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" });
+    const response = await request(app).get("/api/profile").set("Authorization", "Bearer valid-token");
+    expect(response.status).toBe(200);
+    expect(mocks.getProfile).toHaveBeenCalledWith(expect.objectContaining({ uid: "profile-user" }));
+  });
+
+  it("allows only displayName profile updates", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValue({ uid: "profile-user", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.updateDisplayName.mockResolvedValueOnce({ uid: "profile-user", displayName: "HEX Member", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-02T00:00:00.000Z" });
+    expect((await request(app).patch("/api/profile").set("Authorization", "Bearer token").send({ displayName: "HEX Member" })).status).toBe(200);
+    const rejected = await request(app).patch("/api/profile").set("Authorization", "Bearer token").send({ uid: "someone-else", displayName: "Name" });
+    expect(rejected.status).toBe(400);
+    expect(mocks.updateDisplayName).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses the token uid for wishlist operations", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValue({ uid: "owner-a", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.addWishlist.mockResolvedValueOnce({ id: "hx-01" });
+    const response = await request(app).post("/api/wishlist/hx-01").set("Authorization", "Bearer token");
+    expect(response.status).toBe(200);
+    expect(mocks.addWishlist).toHaveBeenCalledWith("owner-a", "hx-01");
+  });
+
+  it("rejects invalid wishlist products without leaking internals", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValueOnce({ uid: "owner-a", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.addWishlist.mockRejectedValueOnce(new Error("PRODUCT_NOT_FOUND"));
+    const response = await request(app).post("/api/wishlist/missing").set("Authorization", "Bearer token");
+    expect(response.status).toBe(404);
+    expect(response.body.error.message).toBe("Product not found");
   });
 });

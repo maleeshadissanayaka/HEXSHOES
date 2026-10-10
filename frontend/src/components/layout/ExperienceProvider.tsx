@@ -1,4 +1,5 @@
-import { useMemo, useState, type ReactNode } from "react";
+/* oxlint-disable react/set-state-in-effect, react-hooks/exhaustive-deps -- synchronization runs only when authenticated identity changes */
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ExperienceContext } from "../../hooks/useExperience";
 import type { ExperienceDialog } from "../../types/experience";
@@ -8,11 +9,40 @@ import { Icon } from "../shared/Icon";
 import { QuickView } from "../products/QuickView";
 import { HexAssistant, AssistantLauncher } from "../assistant/HexAssistant";
 import type { CartLine } from "../../types/product";
+import { useAuth } from "../../auth/useAuth";
+import { mergeWishlistIds, toggleWishlistId } from "../../auth/wishlistState";
+import { addWishlistProduct, getWishlist, removeWishlistProduct } from "../../services/api/wishlist.api";
 
 export function ExperienceProvider({ children }: { children: ReactNode }) {
   const [dialog, setDialog] = useState<ExperienceDialog | null>(null);
   const [cart, setCart] = useState<CartLine[]>([]);
-  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [guestWishlist, setGuestWishlist] = useState<string[]>([]);
+  const [accountWishlist, setAccountWishlist] = useState<string[]>([]);
+  const auth = useAuth();
+  const wishlist = auth.user ? accountWishlist : guestWishlist;
+
+  useEffect(() => {
+    const user = auth.user;
+    if (!user) { setAccountWishlist([]); return; }
+    const guestSnapshot = guestWishlist;
+    setAccountWishlist(guestSnapshot);
+    const controller = new AbortController();
+    void getWishlist(user, controller.signal).then(async (products) => {
+      const remoteIds = products.map(({ id }) => id);
+      const missing = guestSnapshot.filter((id) => !remoteIds.includes(id));
+      if (!controller.signal.aborted) setAccountWishlist(mergeWishlistIds(remoteIds, guestSnapshot));
+      for (const productId of missing) await addWishlistProduct(user, productId);
+      if (!controller.signal.aborted) {
+        setAccountWishlist(mergeWishlistIds(remoteIds, guestSnapshot));
+        setGuestWishlist([]);
+      }
+    }).catch((error: unknown) => {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        setAccountWishlist(guestSnapshot);
+      }
+    });
+    return () => controller.abort();
+  }, [auth.user?.uid]);
   const openDialog = useMemo(
     () => (next: ExperienceDialog) => setDialog(next),
     [],
@@ -24,12 +54,16 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
       close: closeDialog,
       cart,
       wishlist,
-      toggleWishlist: (productId: string) =>
-        setWishlist((current) =>
-          current.includes(productId)
-            ? current.filter((id) => id !== productId)
-            : [...current, productId],
-        ),
+      toggleWishlist: (productId: string) => {
+        if (!auth.user) { setGuestWishlist((current) => toggleWishlistId(current, productId)); return; }
+        const user = auth.user;
+        const removing = accountWishlist.includes(productId);
+        setAccountWishlist((current) => toggleWishlistId(current, productId));
+        const request = removing ? removeWishlistProduct(user, productId) : addWishlistProduct(user, productId);
+        void request.catch(() => setAccountWishlist((current) => removing
+          ? mergeWishlistIds(current, [productId])
+          : current.filter((id) => id !== productId)));
+      },
       addToCart: (product: CartLine["product"], size: string, quantity: number) =>
         setCart((current) => {
           const existing = current.find(
@@ -58,9 +92,11 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
           ),
         ),
       removeWishlistItem: (productId: string) =>
-        setWishlist((current) => current.filter((id) => id !== productId)),
+        auth.user
+          ? (setAccountWishlist((current) => current.filter((id) => id !== productId)), void removeWishlistProduct(auth.user, productId).catch(() => setAccountWishlist((current) => mergeWishlistIds(current, [productId]))))
+          : setGuestWishlist((current) => current.filter((id) => id !== productId)),
     }),
-    [cart, wishlist, openDialog, closeDialog],
+    [auth.user, accountWishlist, cart, wishlist, openDialog, closeDialog],
   );
   const title =
     dialog?.kind === "quick-view"
