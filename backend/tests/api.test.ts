@@ -1,8 +1,15 @@
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DecodedIdToken } from "firebase-admin/auth";
+
+const mocks = vi.hoisted(() => ({ verifyFirebaseIdToken: vi.fn() }));
+vi.mock("../src/services/tokenVerifier.js", () => ({
+  verifyFirebaseIdToken: mocks.verifyFirebaseIdToken,
+}));
 import app from "../src/app.js";
 
 describe("HEXSHOES API", () => {
+  beforeEach(() => mocks.verifyFirebaseIdToken.mockReset());
   it("reports health", async () => {
     const response = await request(app).get("/api/health");
     expect(response.status).toBe(200);
@@ -15,7 +22,7 @@ describe("HEXSHOES API", () => {
     const response = await request(app).get("/api/status");
     expect(response.status).toBe(200);
     expect(response.body.data).toMatchObject({
-      backend: "READY", database: "FIXTURE", authentication: "NOT_CONNECTED",
+      backend: "READY", database: "FIXTURE", authentication: "READY",
       aiService: "NOT_CONNECTED", commerce: "FOUNDATION",
     });
   });
@@ -76,5 +83,51 @@ describe("HEXSHOES API", () => {
   it("does not allow an unrelated CORS origin", async () => {
     const response = await request(app).get("/api/products").set("Origin", "https://example.com");
     expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+
+  it("keeps public routes available without authentication", async () => {
+    expect((await request(app).get("/api/health")).status).toBe(200);
+    expect((await request(app).get("/api/products")).status).toBe(200);
+  });
+
+  it("requires authorization for the current-user route", async () => {
+    const response = await request(app).get("/api/me");
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ success: false, error: { message: "Authentication required" } });
+    expect(mocks.verifyFirebaseIdToken).not.toHaveBeenCalled();
+  });
+
+  it.each(["Basic credentials", "Bearer", "Bearer token with-spaces"])(
+    "rejects malformed authorization: %s",
+    async (authorization) => {
+      const response = await request(app).get("/api/me").set("Authorization", authorization);
+      expect(response.status).toBe(401);
+      expect(response.body.error.message).toBe("Authentication required");
+      expect(mocks.verifyFirebaseIdToken).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects an invalid Firebase ID token safely", async () => {
+    mocks.verifyFirebaseIdToken.mockRejectedValueOnce(new Error("Firebase internal detail"));
+    const response = await request(app).get("/api/me").set("Authorization", "Bearer invalid-token");
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ success: false, error: { message: "Invalid or expired authentication" } });
+    expect(response.text).not.toContain("Firebase internal detail");
+  });
+
+  it("returns only the safe authenticated-user projection for a valid token", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValueOnce({
+      uid: "user-123", email: "member@example.com", email_verified: true,
+      name: "HEX Member", picture: "https://example.test/avatar.png",
+      firebase: { sign_in_provider: "google.com", identities: {} },
+    } as unknown as DecodedIdToken);
+    const response = await request(app).get("/api/me").set("Authorization", "Bearer valid-token");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ success: true, data: {
+      uid: "user-123", email: "member@example.com", emailVerified: true,
+      name: "HEX Member", picture: "https://example.test/avatar.png", provider: "google.com",
+    } });
+    expect(response.text).not.toContain("valid-token");
+    expect(mocks.verifyFirebaseIdToken).toHaveBeenCalledWith("valid-token");
   });
 });

@@ -1,5 +1,6 @@
 import { cert, getApp, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { getAuth, type Auth } from "firebase-admin/auth";
 import { env } from "./env.js";
 
 interface FirebaseServerConfig {
@@ -17,7 +18,7 @@ const requireFirebaseConfig = (): FirebaseServerConfig => {
   ].filter(([, value]) => value === undefined || value.trim() === "").map(([name]) => name);
 
   if (missing.length > 0) {
-    throw new Error(`Firestore data source requires server configuration: ${missing.join(", ")}`);
+    throw new Error(`Firebase Admin requires server configuration: ${missing.join(", ")}`);
   }
 
   return {
@@ -28,15 +29,26 @@ const requireFirebaseConfig = (): FirebaseServerConfig => {
 };
 
 let firestore: Firestore | undefined;
+let firebaseApp: App | undefined;
+let firebaseAuth: Auth | undefined;
+
+export const getFirebaseAdminApp = (): App => {
+  if (firebaseApp !== undefined) return firebaseApp;
+  const config = requireFirebaseConfig();
+  firebaseApp = getApps().length > 0
+    ? getApp()
+    : initializeApp({ credential: cert(config), projectId: config.projectId });
+  return firebaseApp;
+};
+
+export const getFirebaseAuth = (): Auth => {
+  if (firebaseAuth !== undefined) return firebaseAuth;
+  firebaseAuth = getAuth(getFirebaseAdminApp());
+  return firebaseAuth;
+};
 
 export const getFirestoreDatabase = (): Firestore => {
   if (firestore !== undefined) return firestore;
-
-  const config = requireFirebaseConfig();
-  const app: App = getApps().length > 0
-    ? getApp()
-    : initializeApp({ credential: cert(config), projectId: config.projectId });
-
-  firestore = getFirestore(app);
+  firestore = getFirestore(getFirebaseAdminApp());
   return firestore;
 };

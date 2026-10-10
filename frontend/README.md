@@ -58,7 +58,9 @@ In Firebase Console, enable both providers before live testing:
 
 Current account features include email/password registration and sign-in, Google popup sign-in, Firebase-managed local browser persistence, session restoration, sign-out, friendly errors, and authenticated account details. `/account` remains public so signed-out visitors can access the forms.
 
-Backend ID-token verification and protected API routes are not implemented yet. No Firestore user-profile document is created, and cart/wishlist data remains visit-local rather than account-persistent. ID tokens are not manually stored by the application.
+Authenticated account sessions call the protected backend `GET /api/me` route. The current Firebase user supplies a fresh ID token through the Firebase SDK, and the shared API boundary adds it only to that protected request. The application does not log, manually store, or persist ID tokens itself.
+
+Backend identity verification is active, but no Firestore user-profile document is created and cart/wishlist data remains visit-local rather than account-persistent.
 
 ## Route overview
 
@@ -71,7 +73,7 @@ Backend ID-token verification and protected API routes are not implemented yet. 
 | `/product/:id`                      | Product concept detail, gallery, presentation size/quantity, and visit-only bag; unknown IDs show 404 |
 | `/visual-search`                    | Sample-image selection, local upload preview, and an interactive planned-pipeline explanation; no CLIP inference |
 | `/wishlist`, `/cart`               | Visit-only saved styles and bag state held in memory; no persistence or checkout |
-| `/account`                         | Personal-space preview; no authentication or customer data |
+| `/account`                         | Firebase account access and backend-verified session state; no persistent profile data |
 | `/about`                           | Brand manifesto and cinematic movement story |
 | `/technology`                      | Intended architecture, service boundaries, and interactive roadmap |
 | `/contact`                         | Validated local contact-form preview; no submission |
@@ -127,7 +129,7 @@ HEX Assistant uses deterministic local replies and suggested prompts. It sends n
 
 CampaignMedia currently uses the optimized hero still with a controllable slow drift. It accepts an optional local video source, with autoplay/muted/playsInline, poster fallback, playback controls, and reduced-motion fallback. No video asset or secondary product-angle photography is currently supplied.
 
-**Backend, REST API, Firebase, authentication, AI, and commerce integrations are intentionally not implemented.** Social, shipping, privacy, and terms controls open explanatory dialogs rather than invented external destinations.
+**The Express product API, Firestore catalog, Firebase browser authentication, and backend ID-token verification are implemented.** AI and commerce integrations are intentionally not implemented. Social, shipping, privacy, and terms controls open explanatory dialogs rather than invented external destinations.
 
 ## Accessibility and motion
 
@@ -163,6 +165,6 @@ Earlier phase review artifacts remain in their respective verification folders. 
 
 ## Current status and next work
 
-The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, visit-only cart and saved styles, account preview, visual discovery, brand, technology, and contact pages. Four products and their prices are illustrative presentation fixtures. Bag and saved-style state live in memory for the current visit only; commerce, authentication, and CLIP inference are not connected. No additional runtime dependencies were added.
+The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, visit-only cart and saved styles, authenticated account access, visual discovery, brand, technology, and contact pages. Bag and saved-style state live in memory for the current visit only; commerce and CLIP inference are not connected.
 
 Remaining work belongs to separately scoped integrations: connect a verified catalog and commerce services, add licensed retail photography, implement authentication and checkout, and connect/evaluate real visual retrieval. Cross-browser Safari/Firefox and hands-on assistive-technology testing are also still recommended.

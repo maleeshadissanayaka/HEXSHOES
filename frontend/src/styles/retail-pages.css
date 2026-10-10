@@ -485,6 +485,9 @@
 }
 .account-profile dt { color: #8f949f; }
 .account-profile dd { color: #eef0f4; text-align: right; }
+.account-profile .backend-session--verified { color: #9fb0ff; }
+.account-profile .backend-session--loading { color: #c6cad4; }
+.account-profile .backend-session--error { color: #e9aab0; }
 .account-profile .account-auth__error { grid-column: 1 / -1; margin: 0; }
 .product-detail {
   padding-block: 58px 78px;

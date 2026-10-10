@@ -13,12 +13,16 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiGet(path: string, signal?: AbortSignal): Promise<unknown> {
+export async function apiGet(
+  path: string,
+  signal?: AbortSignal,
+  headers: Readonly<Record<string, string>> = {},
+): Promise<unknown> {
   let response: Response;
   try {
     response = await fetch(`${apiConfig.baseUrl}${path}`, {
       method: "GET",
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", ...headers },
       signal,
     });
   } catch (error) {

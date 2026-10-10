@@ -1,6 +1,6 @@
 # HEXSHOES Backend
 
-The HEXSHOES backend provides a typed, testable HTTP API with a repository boundary for local fixture data or the Firestore `products` collection. Firebase Auth, payments, and the Python AI service are not connected.
+The HEXSHOES backend provides a typed, testable HTTP API with a repository boundary for the Firestore `products` collection and server-side Firebase ID-token verification. Payments and the Python AI service are not connected.
 
 ## Stack and structure
 
@@ -46,8 +46,21 @@ These variables are server-side only. Escaped newlines in the private key are no
 - `GET /api/status`
 - `GET /api/products` (optional `category`, `audience`, and `new=true|false` filters)
 - `GET /api/products/:id`
+- `GET /api/me` (requires a valid Firebase ID token)
 
 Success responses use `{ "success": true, "data": ... }`; errors use `{ "success": false, "error": { "message": "..." } }`.
+
+## Firebase Authentication
+
+`GET /api/me` is protected by Firebase Admin ID-token verification. Send the current Firebase browser ID token using:
+
+```http
+Authorization: Bearer <firebase-id-token>
+```
+
+Missing or malformed authorization returns `401 Authentication required`. Invalid, expired, or revoked tokens return `401 Invalid or expired authentication`. The endpoint returns only the safe user projection available from verified claims: `uid` and optional `email`, `emailVerified`, `name`, `picture`, and sign-in `provider`. It never returns the raw token, private claims, service-account data, or Firebase internals.
+
+`/api/health`, `/api/status`, `/api/products`, and `/api/products/:id` remain public. Authentication currently establishes request identity only; it does not create a Firestore user profile or persist cart/wishlist data.
 
 ## Firestore collection and seeding
 
@@ -61,4 +74,4 @@ Do not commit `.env`, service-account JSON, private keys, or credentials. Never 
 
 The local products remain presentation fixtures and also serve as the deterministic Firestore seed source. They are not inventory, availability, sales, demand, review, or recommendation data.
 
-Firebase Admin/Firestore repository support is implemented, but a live project requires separate server credentials. Firebase Auth and real authentication remain unconnected. FastAPI, PyTorch/OpenCLIP, recommendations, analytics, commerce workflows, and payments are not implemented.
+Firebase Admin supports Firestore access and Firebase ID-token verification, but a live project requires server credentials. User-profile persistence, FastAPI, PyTorch/OpenCLIP, recommendations, analytics, commerce workflows, and payments are not implemented.

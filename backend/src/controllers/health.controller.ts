@@ -13,7 +13,7 @@ export const getStatus: RequestHandler = (_request, response) => {
   response.status(200).json({
     success: true,
     data: {
-      backend: "READY", database: databaseStatus, authentication: "NOT_CONNECTED",
+      backend: "READY", database: databaseStatus, authentication: "READY",
       aiService: "NOT_CONNECTED", commerce: "FOUNDATION",
     },
   });

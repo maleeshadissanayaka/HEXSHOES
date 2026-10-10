@@ -7,6 +7,7 @@ import { Icon } from "../components/shared/Icon";
 import { PageContainer } from "../components/shared/PageContainer";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useExperience } from "../hooks/useExperience";
+import { useBackendSession } from "../auth/useBackendSession";
 
 const accountModules = [
   { index: "01", title: "Saved Styles", description: "Return to the footwear concepts saved during this visit.", to: "/wishlist", action: "View saved styles" },
@@ -78,6 +79,7 @@ export function AccountPage() {
   const auth = useAuth();
   const { wishlist } = useExperience();
   const state = accountViewState(auth.loading, auth.user);
+  const backendSession = useBackendSession(auth.user);
   const [signOutError, setSignOutError] = useState("");
   return <div className="route-enter account-page">
     <section className="account-intro section"><PageContainer>
@@ -90,9 +92,9 @@ export function AccountPage() {
     {state === "signed-in" && auth.user && <>
       <section className="account-profile section"><PageContainer className="account-profile__layout">
         <div><p className="eyebrow">AUTHENTICATED / ACTIVE SESSION</p><h2>{auth.user.displayName || "HEXSHOES MEMBER"}</h2><p>{auth.user.email ?? "Email unavailable"}</p></div>
-        <dl><div><dt>Provider</dt><dd>{providerLabel(auth.user)}</dd></div><div><dt>Account status</dt><dd>{auth.user.emailVerified ? "Email verified" : "Active"}</dd></div></dl>
+        <dl><div><dt>Provider</dt><dd>{providerLabel(auth.user)}</dd></div><div><dt>Account status</dt><dd>{auth.user.emailVerified ? "Email verified" : "Active"}</dd></div><div><dt>Backend session</dt><dd className={`backend-session backend-session--${backendSession.status}`}>{backendSession.status === "verified" ? "Verified" : backendSession.status === "loading" ? "Verifying…" : "Unavailable"}</dd></div></dl>
         <button className="button button--outline" type="button" onClick={() => { setSignOutError(""); void auth.signOutUser().catch((error: unknown) => setSignOutError(error instanceof Error ? error.message : "Sign out failed.")); }}>SIGN OUT</button>
-        <p className="account-auth__error" role="alert">{signOutError}</p>
+        <p className="account-auth__error" role="alert">{signOutError || backendSession.message}</p>
       </PageContainer></section>
       <section className="account-modules section"><PageContainer><div className="account-modules__grid">
         {accountModules.map((module) => <article key={module.index}><span className="eyebrow muted">{module.index} / PERSONAL SPACE</span><h2>{module.title}</h2><p>{module.description}</p>{module.title === "Saved Styles" && wishlist.length > 0 && <span className="account-module__count">{wishlist.length} saved this visit</span>}<Link className="text-link" to={module.to}>{module.action} <Icon name="arrow" size={18} /></Link></article>)}
