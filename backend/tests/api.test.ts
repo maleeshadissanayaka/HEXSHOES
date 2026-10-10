@@ -15,7 +15,7 @@ describe("HEXSHOES API", () => {
     const response = await request(app).get("/api/status");
     expect(response.status).toBe(200);
     expect(response.body.data).toMatchObject({
-      backend: "READY", database: "NOT_CONNECTED", authentication: "NOT_CONNECTED",
+      backend: "READY", database: "FIXTURE", authentication: "NOT_CONNECTED",
       aiService: "NOT_CONNECTED", commerce: "FOUNDATION",
     });
   });

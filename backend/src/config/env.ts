@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 export type NodeEnvironment = "development" | "test" | "production";
+export type ProductDataSource = "fixture" | "firestore";
 
 const parseNodeEnvironment = (value: string | undefined): NodeEnvironment =>
   value === "production" || value === "test" || value === "development" ? value : "development";
@@ -21,8 +22,20 @@ const parseOrigin = (value: string | undefined): string => {
   }
 };
 
+const parseProductDataSource = (value: string | undefined): ProductDataSource => {
+  if (value === undefined || value === "fixture") return "fixture";
+  if (value === "firestore") return "firestore";
+  throw new Error('PRODUCT_DATA_SOURCE must be either "fixture" or "firestore"');
+};
+
 export const env = Object.freeze({
   port: parsePort(process.env.PORT),
   nodeEnv: parseNodeEnvironment(process.env.NODE_ENV),
   frontendOrigin: parseOrigin(process.env.FRONTEND_ORIGIN),
+  productDataSource: parseProductDataSource(process.env.PRODUCT_DATA_SOURCE),
+  firebase: Object.freeze({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+  }),
 });
