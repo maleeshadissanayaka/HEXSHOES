@@ -1,6 +1,6 @@
 # HEXSHOES AI Service
 
-Foundation-only FastAPI microservice for real OpenCLIP text and image embeddings and cosine-similarity ranking. It is not connected to the storefront yet and makes no accuracy, confidence, recommendation, forecasting, or segmentation claims.
+FastAPI microservice for real OpenCLIP text/image embeddings, cosine retrieval, transparent content-based recommendations, and manually weighted multimodal fusion. It makes no accuracy, probability, confidence, forecasting, or segmentation claims.
 
 ## Architecture
 
@@ -14,7 +14,9 @@ app/
 `-- services/
     |-- embedding_service.py      # text/image encoding and normalization
     |-- catalog_index_service.py  # manifest, persisted index, validation, search
-    `-- similarity_service.py     # cosine scores and top-k ranking
+    |-- similarity_service.py     # cosine scores and top-k ranking
+    |-- recommendation_service.py # product and interaction-based ranking
+    `-- multimodal_service.py     # normalized image/text fusion
 ```
 
 The production app loads one model during FastAPI startup, selects CUDA when PyTorch reports it available and otherwise uses CPU, calls `eval()`, and uses `torch.no_grad()` for inference. Startup fails clearly if the configured weights cannot load; there is no random or fake embedding fallback.
@@ -90,6 +92,14 @@ Example similarity request:
 
 Text and image feature vectors are converted to float32 NumPy arrays and L2-normalized. For normalized vectors, the dot product is cosine similarity. Returned values are **similarity scores**, not probabilities or confidence estimates.
 
+## Recommendations and multimodal fusion
+
+Additional endpoints are `POST /search/multimodal`, `GET /recommend/similar/{product_id}`, and `POST /recommend/user`. Multimodal search accepts an image, text, or both. Recommendation responses contain identifiers, ranks, scores, and structured reason codes only; canonical product metadata remains owned by Express.
+
+Product similarity uses the selected product's committed image embedding as the query and always excludes that product. User recommendations take explicit product interactions from Express; FastAPI never accesses Firebase. It computes a weighted mean of the corresponding normalized catalog vectors, normalizes that ephemeral interest vector, and ranks the remaining products. Reason codes are selected deterministically from the interaction that provides the strongest weighted evidence for each candidate.
+
+Weights are manually configured, not learned. Express supplies wishlist weight `1.0`; cart weight starts at `1.0` and adds `0.15` per additional quantity, capped at quantity four (`1.45`). When both image and text are present, their normalized embeddings are combined using image weight `0.6` and text weight `0.4`, then normalized again. Single-modality requests use that normalized embedding directly.
+
 ## Catalog image index
 
 `data/catalog.json` maps only canonical product IDs to portable repository-relative image paths. Product names, prices, categories, and other canonical metadata remain owned by the backend/Firestore catalog. Phase 2 uses the 960×960 primary image recorded by the canonical catalog for each product:
@@ -141,4 +151,4 @@ Run the separately marked real-model smoke test with:
 
 ## Current limitations
 
-This phase provides model loading, text/image embedding, a four-product local image index, and real image/text retrieval. There is no frontend or Express integration, vector database, held-out retrieval dataset, batching queue, authentication, rate limiting, production model-cache policy, recommendation engine, forecasting, segmentation, or claimed production retrieval quality. The presentation catalog has only one image per product, so self-retrieval cannot measure generalization. CPU inference is supported but can be slow, especially during initial model loading.
+The catalog has only four products and one indexed image per product. Recommendations are therefore a transparent catalog demonstration, not evidence of general recommendation quality. There is no collaborative filtering, learned weighting, behavioral event history, held-out relevance dataset, vector database, batching queue, rate limiting, forecasting, segmentation, or claimed production quality. CPU inference is supported but can be slow, especially during initial model loading. The in-memory NumPy matrix remains appropriate; a larger catalog could later use an approximate-nearest-neighbor index without changing API ownership.

@@ -9,9 +9,11 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { formatPrice } from "../utils/formatPrice";
 import type { PresentationMediaName } from "../data/presentationMedia";
 import { NotFoundPage } from "./ShellPages";
-import { useProduct, useProducts } from "../hooks/useProducts";
+import { useProduct } from "../hooks/useProducts";
+import { useSimilarRecommendations } from "../hooks/useRecommendations";
 import { ProductState } from "../components/products/ProductState";
 import { ApiError } from "../services/api/apiClient";
+import { excludeRecommendationProduct } from "../components/products/recommendationState";
 
 const galleryLabels: Record<PresentationMediaName, string> = {
   hero: "Campaign study",
@@ -48,7 +50,7 @@ const gallery = ["product", "story", "texture"] as const;
 export function ProductPage() {
   const { id } = useParams();
   const { data: product, loading, error, retry } = useProduct(id);
-  const { data: catalog } = useProducts();
+  const similar = useSimilarRecommendations(id);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -63,7 +65,6 @@ export function ProductPage() {
 
   const media = gallery[galleryIndex] === "product" ? product.style : gallery[galleryIndex]!;
   const isSaved = wishlist.includes(product.id);
-  const related = catalog.filter((item) => item.id !== product.id);
   const note = designNotes[product.style];
   const sizes = product.sizes.length > 0 ? product.sizes : fallbackSizes;
 
@@ -243,13 +244,16 @@ export function ProductPage() {
           <div className="retail-products__top">
             <div>
               <p className="eyebrow">Continue exploring</p>
-              <h2>Other directions.</h2>
+              <h2>Similar Styles.</h2>
             </div>
             <Link className="text-link" to="/shop">All footwear <Icon name="arrow" size={18} /></Link>
           </div>
           <div className="collection-grid retail-grid">
-            {related.slice(0, 3).map((item) => <ProductCard key={item.id} product={item} />)}
+            {excludeRecommendationProduct(similar.data.results, product.id).map((item) => <div className="recommendation-card" key={item.product.id}><ProductCard product={item.product} /><p className="quiet-note">{item.reason}</p></div>)}
           </div>
+          {similar.loading && <p className="quiet-note" role="status">Finding visually related catalog styles…</p>}
+          {similar.error && <p className="quiet-note">Similar Styles are temporarily unavailable. This product page remains available.</p>}
+          {!similar.loading && !similar.error && similar.data.results.length === 0 && <p className="quiet-note">No additional similar styles are available.</p>}
         </PageContainer>
       </section>
 

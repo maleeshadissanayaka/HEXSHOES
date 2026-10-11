@@ -1,13 +1,15 @@
 from io import BytesIO
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 
-from app.schemas.api import ProductTextSearchRequest, TextEmbeddingRequest, TextSimilarityRequest
+from app.schemas.api import ProductTextSearchRequest, TextEmbeddingRequest, TextSimilarityRequest, UserRecommendationRequest
 from app.services.catalog_index_service import CatalogIndexService, SearchResult
 from app.services.embedding_service import EmbeddingService
 from app.services.similarity_service import top_k
+from app.services.multimodal_service import fuse_multimodal_embeddings
+from app.services.recommendation_service import Interaction, RecommendationService
 
 router = APIRouter()
 
@@ -30,6 +32,10 @@ def catalog_index(request: Request) -> CatalogIndexService:
 
 def result_payload(results: list[SearchResult]) -> list[dict[str, object]]:
     return [{"rank": item.rank, "productId": item.product_id, "similarityScore": item.similarity_score} for item in results]
+
+
+def recommendations(request: Request) -> RecommendationService:
+    return RecommendationService(catalog_index(request))
 
 
 async def validated_image(request: Request, file: UploadFile) -> Image.Image:
@@ -110,3 +116,47 @@ def search_text(payload: ProductTextSearchRequest, request: Request) -> dict[str
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     return {"success": True, "data": {"queryType": "text", "model": index.model, "pretrained": index.pretrained, "results": result_payload(results)}}
+
+
+@router.post("/search/multimodal")
+async def search_multimodal(
+    request: Request,
+    image: UploadFile | None = File(default=None),
+    text: str | None = Form(default=None),
+    top_k_value: int = Form(default=4, alias="topK"),
+    image_weight: float = Form(default=0.6, alias="imageWeight"),
+    text_weight: float = Form(default=0.4, alias="textWeight"),
+) -> dict[str, object]:
+    query_text = text.strip() if text else None
+    if image is None and not query_text:
+        raise HTTPException(status_code=422, detail="At least one image or text query is required")
+    image_embedding = service(request).embed_image(await validated_image(request, image))[0] if image else None
+    text_embedding = service(request).embed_text(query_text)[0] if query_text else None
+    try:
+        combined = fuse_multimodal_embeddings(image_embedding, text_embedding, image_weight, text_weight)
+        results = catalog_index(request).search(combined, top_k_value)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    mode = "image+text" if image is not None and query_text else "image" if image is not None else "text"
+    return {"success": True, "data": {"queryType": "multimodal", "queryMode": mode, "results": result_payload(results)}}
+
+
+@router.get("/recommend/similar/{product_id}")
+def recommend_similar(product_id: str, request: Request, top_k_value: int = Query(default=3, alias="topK")) -> dict[str, object]:
+    try:
+        results = recommendations(request).similar(product_id, top_k_value)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    items = [{**item, "reasonCode": "SIMILAR_TO_CURRENT_PRODUCT"} for item in result_payload(results)]
+    return {"success": True, "data": {"strategy": "clip-image-similarity", "results": items}}
+
+
+@router.post("/recommend/user")
+def recommend_user(payload: UserRecommendationRequest, request: Request) -> dict[str, object]:
+    interactions = [Interaction(item.product_id, item.signal, item.weight) for item in payload.interactions]
+    try:
+        results = recommendations(request).recommend(interactions, payload.top_k)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    items = [{"rank": item.rank, "productId": item.product_id, "score": item.score, "reasonCode": item.reason_code, "reasonProductId": item.reason_product_id} for item in results]
+    return {"success": True, "data": {"strategy": "hybrid-content", "results": items}}

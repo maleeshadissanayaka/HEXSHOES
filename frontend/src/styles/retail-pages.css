@@ -1405,3 +1405,10 @@
     padding-block: 38px 52px;
   }
 }
+.recommendation-card > .quiet-note {
+  margin: 0.75rem 0 0;
+}
+
+.account-recommendations > .page-container > .quiet-note {
+  margin: 0 0 1.5rem;
+}

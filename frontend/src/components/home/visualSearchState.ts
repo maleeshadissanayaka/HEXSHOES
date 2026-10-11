@@ -8,6 +8,13 @@ export function validateVisualSearchFile(file: File): string | undefined {
 export function createVisualSearchForm(file: File, topK = 4): FormData {
   const form = new FormData(); form.set("image", file); form.set("topK", String(topK)); return form;
 }
+export function createMultimodalForm(file: File | undefined, text: string | undefined, topK = 4): FormData {
+  const form = new FormData();
+  if (file) form.set("image", file);
+  if (text?.trim()) form.set("text", text.trim());
+  form.set("topK", String(topK));
+  return form;
+}
 export type VisualSearchState = "idle" | "selected" | "searching" | "success" | "empty" | "error";
 export const resultState = (count: number): VisualSearchState => count > 0 ? "success" : "empty";
 export const formatSimilarity = (score: number) => `Similarity ${score.toFixed(3)}`;

@@ -9,6 +9,9 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useExperience } from "../hooks/useExperience";
 import { useBackendSession } from "../auth/useBackendSession";
 import { useProfile } from "../auth/useProfile";
+import { usePersonalizedRecommendations } from "../hooks/useRecommendations";
+import { ProductCard } from "../components/products/ProductCard";
+import { recommendationDisclosure, recommendationHeading } from "../components/products/recommendationState";
 
 const accountModules = [
   { index: "01", title: "Saved Styles", description: "Return to your saved footwear concepts across signed-in sessions.", to: "/wishlist", action: "View saved styles" },
@@ -82,6 +85,7 @@ export function AccountPage() {
   const state = accountViewState(auth.loading, auth.user);
   const backendSession = useBackendSession(auth.user);
   const profile = useProfile(auth.user);
+  const recommendations = usePersonalizedRecommendations(auth.user);
   const [signOutError, setSignOutError] = useState("");
   const [profileSaved, setProfileSaved] = useState("");
   return <div className="route-enter account-page">
@@ -106,6 +110,13 @@ export function AccountPage() {
       <section className="account-modules section"><PageContainer><div className="account-modules__grid">
         {accountModules.map((module) => <article key={module.index}><span className="eyebrow muted">{module.index} / PERSONAL SPACE</span><h2>{module.title}</h2><p>{module.description}</p>{module.title === "Saved Styles" && wishlist.length > 0 && <span className="account-module__count">{wishlist.length} saved</span>}<Link className="text-link" to={module.to}>{module.action} <Icon name="arrow" size={18} /></Link></article>)}
       </div><p className="quiet-note account-note">Your profile and saved styles persist securely when signed in. Bag selections remain in memory for this visit only.</p></PageContainer></section>
+      <section className="account-recommendations section"><PageContainer>
+        <div className="retail-products__top"><div><p className="eyebrow">CONTENT-BASED DISCOVERY</p><h2>{recommendationHeading(recommendations.data.personalized)}</h2></div></div>
+        {!recommendations.loading && !recommendations.error && <p className="quiet-note">{recommendationDisclosure(recommendations.data.personalized)}</p>}
+        {recommendations.loading && <p className="quiet-note" role="status">Building recommendations from your real account interactions…</p>}
+        {recommendations.error && <p className="quiet-note">Recommendations are temporarily unavailable.</p>}
+        <div className="collection-grid retail-grid">{recommendations.data.results.map((item) => <div className="recommendation-card" key={item.product.id}><ProductCard product={item.product} /><p className="quiet-note">{item.reason}</p></div>)}</div>
+      </PageContainer></section>
     </>}
   </div>;
 }

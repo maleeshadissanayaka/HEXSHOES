@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field, StrictInt, field_validator
 
 
@@ -42,3 +44,14 @@ class ProductTextSearchRequest(BaseModel):
         if not value.strip():
             raise ValueError("query must not be blank")
         return value.strip()
+
+
+class RecommendationInteraction(BaseModel):
+    product_id: str = Field(alias="productId", min_length=1)
+    signal: Literal["wishlist", "cart"]
+    weight: float = Field(gt=0)
+
+
+class UserRecommendationRequest(BaseModel):
+    interactions: list[RecommendationInteraction] = Field(min_length=1, max_length=8)
+    top_k: StrictInt = Field(default=3, alias="topK", ge=1)

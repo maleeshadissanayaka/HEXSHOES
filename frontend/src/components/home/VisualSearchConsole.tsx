@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { PresentationImage } from "../shared/PresentationImage";
 import type { FootwearStyle } from "../../types/product";
 import { Icon } from "../shared/Icon";
-import { searchByImage, searchByText, type VisualSearchResult } from "../../services/api/visualSearch.api";
+import { searchByImage, searchByText, searchMultimodal, type VisualSearchResult } from "../../services/api/visualSearch.api";
 import { formatSimilarity, resultState, validateVisualSearchFile, visualSearchErrorMessage, type VisualSearchState } from "./visualSearchState";
 import { formatPrice } from "../../utils/formatPrice";
 
@@ -44,7 +44,7 @@ export function VisualSearchConsole({ compactPipeline = false }: { compactPipeli
   }
   async function runImageSearch() {
     setState("searching"); setMessage("Searching the catalog with OpenCLIP…"); setResults([]);
-    try { const response = await searchByImage(upload?.file ?? await sampleFile()); setResults(response.results); setState(resultState(response.results.length)); setMessage(response.results.length ? "Real catalog matches ranked by cosine similarity." : "No catalog matches were returned."); }
+    try { const file = upload?.file ?? await sampleFile(); const response = text.trim() ? await searchMultimodal(file, text.trim()) : await searchByImage(file); setResults(response.results); setState(resultState(response.results.length)); setMessage(response.results.length ? (text.trim() ? "Image and description fused with manually configured weights." : "Real catalog matches ranked by cosine similarity.") : "No catalog matches were returned."); }
     catch (error) { setState("error"); setMessage(visualSearchErrorMessage(error)); }
   }
   async function runTextSearch(event: FormEvent) {
@@ -60,7 +60,7 @@ export function VisualSearchConsole({ compactPipeline = false }: { compactPipeli
         <div className="sample-options" aria-label="Inspiration samples">{samples.map((item) => <button type="button" key={item.asset} aria-pressed={!upload && sample === item.asset} onClick={() => { setSample(item.asset); resetUpload(); }}>{item.name}</button>)}<label className="discovery-console__upload"><Icon name="upload" size={15} /><span>{upload ? "Replace image" : "Choose an image"}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => selectUpload(event.currentTarget.files?.[0])} /></label></div>
         <div className="discovery-console__actions"><button className="button button--primary" type="button" disabled={state === "searching"} onClick={() => void runImageSearch()}>{state === "searching" ? "Searching…" : "Search this image"}</button>{upload && <button type="button" className="text-link" onClick={resetUpload}>Remove</button>}</div>
         <p className="quiet-note" role={state === "error" ? "alert" : "status"}>{message}</p></div></div>
-    {!compactPipeline && <form className="discovery-console__text-search" onSubmit={(event) => void runTextSearch(event)}><label htmlFor={`${id}-text`} className="eyebrow">Describe what you’re looking for</label><div><input id={`${id}-text`} value={text} maxLength={1000} onChange={(event) => setText(event.target.value)} placeholder="black running shoe" /><button type="submit" disabled={!text.trim() || state === "searching"}>Search</button></div></form>}
+    {!compactPipeline && <form className="discovery-console__text-search" onSubmit={(event) => void runTextSearch(event)}><label htmlFor={`${id}-text`} className="eyebrow">Image + description / Multimodal search</label><div><input id={`${id}-text`} value={text} maxLength={1000} onChange={(event) => setText(event.target.value)} placeholder="something similar but more suitable for trails" /><button type="submit" disabled={!text.trim() || state === "searching"}>Text only</button></div><p className="quiet-note">Use “Search this image” to combine the selected image with this description (60% image / 40% text).</p></form>}
     <div className="discovery-console__stages" aria-label="Explore the live search pipeline">{stages.map((item, index) => <button type="button" key={item.title} aria-pressed={stage === index} aria-controls={id} onClick={() => setStage(index)}><span>0{index + 1}</span>{item.title}</button>)}</div>
     <p id={id} className="discovery-console__explanation" role="status">{stages[stage]?.detail}</p>
     <div className="discovery-console__results-heading"><span className="eyebrow">{state === "success" ? "Ranked catalog matches" : "Catalog results"}</span><span className="quiet-note">Cosine similarity</span></div>

@@ -7,7 +7,7 @@ const topK = (value: unknown): number | undefined => {
   const parsed = value === undefined ? 4 : typeof value === "string" && /^\d+$/.test(value) ? Number(value) : value;
   return Number.isInteger(parsed) && (parsed as number) >= 1 && (parsed as number) <= 4 ? parsed as number : undefined;
 };
-const hasValidImageSignature = (file: Express.Multer.File) => {
+export const hasValidImageSignature = (file: Express.Multer.File) => {
   const bytes = file.buffer;
   if (file.mimetype === "image/jpeg") return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
   if (file.mimetype === "image/png") return bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
@@ -32,5 +32,16 @@ export const searchText = asyncHandler(async (request, response) => {
   const limit = topK(request.body.topK);
   if (!limit) { response.status(400).json({ success: false, error: { message: "topK must be an integer from 1 to 4" } }); return; }
   try { response.status(200).json({ success: true, data: await visualSearchService.text(request.body.query.trim(), limit) }); }
+  catch (error) { if (!unavailable(error, response)) throw error; }
+});
+
+export const searchMultimodal = asyncHandler(async (request, response) => {
+  const text = typeof request.body?.text === "string" && request.body.text.trim() ? request.body.text.trim() : undefined;
+  if (!request.file && !text) { response.status(400).json({ success: false, error: { message: "An image or text query is required" } }); return; }
+  if (request.file && !hasValidImageSignature(request.file)) { response.status(400).json({ success: false, error: { message: "The uploaded image is malformed or does not match its declared type" } }); return; }
+  const limit = topK(request.body?.topK);
+  if (!limit) { response.status(400).json({ success: false, error: { message: "topK must be an integer from 1 to 4" } }); return; }
+  const image = request.file ? { buffer: request.file.buffer, mimeType: request.file.mimetype, filename: request.file.originalname } : undefined;
+  try { response.status(200).json({ success: true, data: await visualSearchService.multimodal({ ...(image ? { image } : {}), ...(text ? { text } : {}) }, limit) }); }
   catch (error) { if (!unavailable(error, response)) throw error; }
 });

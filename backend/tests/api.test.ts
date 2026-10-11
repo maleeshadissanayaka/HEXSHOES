@@ -7,7 +7,8 @@ const mocks = vi.hoisted(() => ({
   ensureProfile: vi.fn(), getProfile: vi.fn(), updateDisplayName: vi.fn(),
   listWishlist: vi.fn(), addWishlist: vi.fn(), removeWishlist: vi.fn(),
   listCart: vi.fn(), addCart: vi.fn(), updateCart: vi.fn(), removeCart: vi.fn(), clearCart: vi.fn(),
-  searchImage: vi.fn(), searchText: vi.fn(),
+  searchImage: vi.fn(), searchText: vi.fn(), searchMultimodal: vi.fn(),
+  similarRecommendations: vi.fn(), personalizedRecommendations: vi.fn(),
 }));
 vi.mock("../src/services/tokenVerifier.js", () => ({
   verifyFirebaseIdToken: mocks.verifyFirebaseIdToken,
@@ -22,7 +23,10 @@ vi.mock("../src/services/cart.service.js", () => ({ cartService: {
   list: mocks.listCart, add: mocks.addCart, update: mocks.updateCart, remove: mocks.removeCart, clear: mocks.clearCart,
 } }));
 vi.mock("../src/services/visualSearch.service.js", () => ({ visualSearchService: {
-  image: mocks.searchImage, text: mocks.searchText,
+  image: mocks.searchImage, text: mocks.searchText, multimodal: mocks.searchMultimodal,
+} }));
+vi.mock("../src/services/recommendation.service.js", () => ({ recommendationService: {
+  similar: mocks.similarRecommendations, personalized: mocks.personalizedRecommendations,
 } }));
 import app from "../src/app.js";
 import { AiServiceResponseError, AiServiceUnavailableError } from "../src/services/ai.service.js";
@@ -249,5 +253,34 @@ describe("HEXSHOES API", () => {
     mocks.searchText.mockRejectedValueOnce(new AiServiceResponseError("Python detail"));
     const malformed = await request(app).post("/api/visual-search/text").send({ query: "shoe" });
     expect(malformed.status).toBe(503); expect(malformed.text).not.toContain("Python detail");
+  });
+
+  it("returns real similar-product orchestration and handles failures", async () => {
+    mocks.similarRecommendations.mockResolvedValueOnce([{ rank: 1, score: 0.6, reason: "Visually similar to this style", reasonCode: "SIMILAR_TO_CURRENT_PRODUCT", product: { id: "hx-02" } }]);
+    const response = await request(app).get("/api/products/hx-01/similar");
+    expect(response.status).toBe(200); expect(response.body.data.results[0].product.id).toBe("hx-02");
+    mocks.similarRecommendations.mockRejectedValueOnce(new Error("PRODUCT_NOT_FOUND"));
+    expect((await request(app).get("/api/products/missing/similar")).status).toBe(404);
+    mocks.similarRecommendations.mockRejectedValueOnce(new AiServiceUnavailableError("offline"));
+    expect((await request(app).get("/api/products/hx-01/similar")).status).toBe(503);
+  });
+
+  it("protects personalized recommendations and uses only the authenticated uid", async () => {
+    expect((await request(app).get("/api/recommendations")).status).toBe(401);
+    mocks.verifyFirebaseIdToken.mockResolvedValueOnce({ uid: "owner-a", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.personalizedRecommendations.mockResolvedValueOnce({ personalized: false, strategy: "catalog-discovery", results: [] });
+    const response = await request(app).get("/api/recommendations").set("Authorization", "Bearer token");
+    expect(response.status).toBe(200); expect(mocks.personalizedRecommendations).toHaveBeenCalledWith("owner-a");
+  });
+
+  it("supports image-only, text-only, and fused multimodal searches", async () => {
+    mocks.searchMultimodal.mockResolvedValue({ queryType: "multimodal", queryMode: "image+text", results: [] });
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    expect((await request(app).post("/api/visual-search/multimodal").attach("image", png, { filename: "query.png", contentType: "image/png" })).status).toBe(200);
+    expect((await request(app).post("/api/visual-search/multimodal").field("text", "trail shoe")).status).toBe(200);
+    expect((await request(app).post("/api/visual-search/multimodal").field("text", "trail shoe").attach("image", png, { filename: "query.png", contentType: "image/png" })).status).toBe(200);
+    expect((await request(app).post("/api/visual-search/multimodal")).status).toBe(400);
+    mocks.searchMultimodal.mockRejectedValueOnce(new AiServiceUnavailableError("offline"));
+    expect((await request(app).post("/api/visual-search/multimodal").field("text", "shoe")).status).toBe(503);
   });
 });

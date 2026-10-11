@@ -52,6 +52,9 @@ These variables are server-side only. Escaped newlines in the private key are no
 - `GET /api/cart`, `POST /api/cart/:productId`, `PATCH /api/cart/:productId`, `DELETE /api/cart/:productId`, and `DELETE /api/cart` (authenticated)
 - `POST /api/visual-search` (multipart image and optional `topK`)
 - `POST /api/visual-search/text` (`query` and optional `topK`)
+- `POST /api/visual-search/multimodal` (optional image, optional text, at least one required)
+- `GET /api/products/:id/similar` (public content similarity)
+- `GET /api/recommendations` (authenticated wishlist/cart recommendations or honest cold start)
 
 Success responses use `{ "success": true, "data": ... }`; errors use `{ "success": false, "error": { "message": "..." } }`.
 
@@ -79,6 +82,8 @@ The browser sends visual-search requests only to Express. Express forwards valid
 
 FastAPI returns only ranked product IDs and cosine similarity scores. Express validates ranks, finite scores, uniqueness, and requested result count, then resolves every known ID through the canonical product repository. Unknown IDs are skipped rather than fabricated. Offline, timed-out, unavailable-index, and malformed-response cases return the controlled `503 Visual search service is temporarily unavailable` contract without Python errors, internal URLs, or tracebacks. `/api/status` reports only that the integration is configured; it does not claim a live health check.
 
+Recommendation ownership follows the same boundary. Express derives the UID only from the verified Firebase token, reads that user's wishlist and cart, and sends product IDs/signals to FastAPI. Wishlist weight is manually configured at `1.0`; cart weight ranges from `1.0` to `1.45` with capped quantity influence. Interacted products are excluded. With no interactions, Express does not call AI or claim personalization: it returns new-first canonical catalog discovery. Explanations are deterministic reason-code mappings grounded in the current product, wishlist, cart, or cold-start strategy.
+
 ## Firestore collection and seeding
 
 The collection is `products`, using deterministic document IDs `hx-01` through `hx-04`. Fields match the `Product` TypeScript interface. Firestore documents are explicitly validated before being returned; malformed data produces a controlled server error rather than an unsafe cast.
@@ -91,4 +96,4 @@ Do not commit `.env`, service-account JSON, private keys, or credentials. Never 
 
 The local products remain presentation fixtures and also serve as the deterministic Firestore seed source. They are not inventory, availability, sales, demand, review, or recommendation data.
 
-Firebase Admin supports Firestore access, Firebase ID-token verification, user profiles, saved styles, and authenticated carts, but a live project requires server credentials. Expanded profile preferences, FastAPI, PyTorch/OpenCLIP, recommendations, analytics, checkout, inventory, commerce workflows, and payments are not implemented.
+Firebase Admin supports Firestore access, Firebase ID-token verification, user profiles, saved styles, authenticated carts, and ephemeral content-based personalization, but a live project requires server credentials. Collaborative filtering, behavioral event tracking, analytics, checkout, inventory, commerce workflows, and payments are not implemented.

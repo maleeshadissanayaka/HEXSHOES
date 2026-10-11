@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createVisualSearchForm, formatSimilarity, resultState, validateVisualSearchFile, visualSearchErrorMessage } from "../src/components/home/visualSearchState.ts";
+import { createMultimodalForm, createVisualSearchForm, formatSimilarity, resultState, validateVisualSearchFile, visualSearchErrorMessage } from "../src/components/home/visualSearchState.ts";
 
 test("image selection accepts supported files and rejects invalid type or size", () => {
   assert.equal(validateVisualSearchFile(new File(["image"], "shoe.webp", { type: "image/webp" })), undefined);
@@ -21,4 +21,12 @@ test("view helpers represent success, empty, errors, and honest similarity wordi
   assert.equal(visualSearchErrorMessage(new Error("Visual search is temporarily unavailable.")), "Visual search is temporarily unavailable.");
   assert.equal(formatSimilarity(0.8249), "Similarity 0.825");
   assert.doesNotMatch(formatSimilarity(0.8249), /%|confidence|probability/i);
+});
+
+test("multimodal forms support image-only, text-only, and image plus text", () => {
+  const file = new File(["image"], "shoe.webp", { type: "image/webp" });
+  assert.equal(createMultimodalForm(file, undefined).get("image"), file);
+  assert.equal(createMultimodalForm(undefined, " trail shoe ").get("text"), "trail shoe");
+  const combined = createMultimodalForm(file, "minimal black sneaker");
+  assert.equal(combined.get("image"), file); assert.equal(combined.get("text"), "minimal black sneaker");
 });

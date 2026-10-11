@@ -107,3 +107,28 @@ def test_product_search_endpoints_rank_known_normalized_vectors() -> None:
         assert image.status_code == 200
         assert image.json()["data"]["results"][0]["productId"] == "hx-02"
         assert client.post("/search/text", json={"query": "shoe", "topK": 3}).status_code == 422
+
+
+def test_recommendation_and_multimodal_endpoints() -> None:
+    app = create_app(TEST_SETTINGS, StubClip())  # type: ignore[arg-type]
+    with TestClient(app) as client:
+        app.state.embedding_service = StubEmbeddings()
+        index = CatalogIndexService(TEST_SETTINGS.catalog_index_directory, "ViT-B-32", "laion2b_s34b_b79k")
+        index._accept(
+            np.array([[1.0, 0.0], [0.8, 0.6], [0.0, 1.0], [-1.0, 0.0]], dtype=np.float32),
+            ["hx-01", "hx-02", "hx-03", "hx-04"],
+            IndexMetadata("ViT-B-32", "laion2b_s34b_b79k", 2, True, "2026-01-01T00:00:00+00:00", 4),
+        )
+        app.state.catalog_index = index
+        similar = client.get("/recommend/similar/hx-01?topK=2")
+        assert similar.status_code == 200
+        assert [item["productId"] for item in similar.json()["data"]["results"]] == ["hx-02", "hx-03"]
+        user = client.post("/recommend/user", json={"interactions": [{"productId": "hx-01", "signal": "wishlist", "weight": 1.0}], "topK": 3})
+        assert user.status_code == 200
+        assert all(item["productId"] != "hx-01" for item in user.json()["data"]["results"])
+        image_bytes = BytesIO()
+        Image.new("RGB", (2, 2), color="black").save(image_bytes, format="PNG")
+        multimodal = client.post("/search/multimodal", files={"image": ("shoe.png", image_bytes.getvalue(), "image/png")}, data={"text": "trail", "topK": "2"})
+        assert multimodal.status_code == 200
+        assert multimodal.json()["data"]["queryMode"] == "image+text"
+        assert client.post("/search/multimodal", data={"topK": "2"}).status_code == 422
