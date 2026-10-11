@@ -55,6 +55,8 @@ These variables are server-side only. Escaped newlines in the private key are no
 - `POST /api/visual-search/multimodal` (optional image, optional text, at least one required)
 - `GET /api/products/:id/similar` (public content similarity)
 - `GET /api/recommendations` (authenticated wishlist/cart recommendations or honest cold start)
+- `POST /api/agent/message` (public grounded orchestration with optional authentication)
+- `POST /api/agent/confirm` (authenticated execution of a signed pending action)
 
 Success responses use `{ "success": true, "data": ... }`; errors use `{ "success": false, "error": { "message": "..." } }`.
 
@@ -91,6 +93,14 @@ The collection is `products`, using deterministic document IDs `hx-01` through `
 `npm run seed:products` requires valid Firebase Admin environment configuration. It merges only the four canonical fixture records and does not delete unrelated documents. It is never run automatically.
 
 Do not commit `.env`, service-account JSON, private keys, or credentials. Never copy Firebase Admin configuration into frontend code.
+
+## Grounded shopping agent
+
+Phase 1 is a deterministic tool-using agent, not an LLM. Intent parsing, tool adapters, orchestration, response contracts, and confirmation security are separated under `src/agent/`. Public requests can use existing OpenCLIP text search, compare canonical products, find Similar Styles, receive honest catalog discovery, and request help. Optional Firebase authentication enables profile, wishlist, cart, and personalized-recommendation tools.
+
+Wishlist and cart mutations are never executed from the initial message. `/api/agent/message` returns a short-lived HMAC-signed pending action. `/api/agent/confirm` verifies the Firebase user, signature, expiry, UID binding, action fields, and single-use identifier before calling the existing wishlist or cart service. `AGENT_ACTION_SECRET` may hold a high-entropy server-only secret; when absent, local development uses a random process-lifetime secret. Tokens and message contents are not logged.
+
+Browser context is limited to a current product and at most four referenced product IDs, all resolved through the canonical repository. Messages are limited to 500 characters, results to four products, and quantities to 1–10. Inventory, delivery, live size availability, checkout, and return-policy answers are unsupported and never fabricated.
 
 ## Current limitations and future work
 

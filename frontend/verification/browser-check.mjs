@@ -922,7 +922,7 @@ try {
     await key("End");
     assert(
       await client.evaluate(
-        `document.querySelector('[role="tabpanel"]').textContent.includes('current HEX Assistant is scripted')`,
+        `document.querySelector('[role="tabpanel"]').textContent.includes('deterministic intent routing')`,
       ),
     );
     await key("Home");
@@ -991,11 +991,12 @@ try {
     );
     await screenshot(prePushReview ? "assistant-open-1440.png" : "assistant-open.png");
     await client.evaluate(
-      `[...document.querySelectorAll('.hex-assistant__suggestions button')].find(b => b.textContent.includes('visual search')).click()`,
+      `[...document.querySelectorAll('.hex-assistant__suggestions button')].find(b => b.textContent.includes('trail shoe')).click()`,
     );
+    await pause(500);
     assert(
       await client.evaluate(
-        `document.querySelectorAll('.assistant-message').length === 3 && document.querySelector('[role="log"]').textContent.includes('planned for the AI integration phase')`,
+        `document.querySelectorAll('.assistant-message').length >= 3 && document.querySelector('[role="log"]').textContent.includes('HEX Trail')`,
       ),
     );
     await client.evaluate(`document.querySelector('#assistant-message').focus()`);
@@ -1008,7 +1009,7 @@ try {
     await client.evaluate(
       `document.querySelector('.hex-assistant__form').requestSubmit()`,
     );
-    await pause(150);
+    await pause(500);
     assert(
       await client.evaluate(
         `document.querySelectorAll('.assistant-message--user p').item(document.querySelectorAll('.assistant-message--user p').length - 1).textContent.length === 500 && document.querySelector('.hex-assistant__messages').scrollTop + document.querySelector('.hex-assistant__messages').clientHeight >= document.querySelector('.hex-assistant__messages').scrollHeight - 1`,
@@ -1021,10 +1022,10 @@ try {
     await client.evaluate(
       `document.querySelector('.hex-assistant__form').requestSubmit()`,
     );
-    await pause(150);
+    await pause(500);
     assert(
       await client.evaluate(
-        `document.querySelector('[role="log"]').textContent.includes('not active') && document.querySelector('#assistant-message').value === ''`,
+        `document.querySelector('[role="log"]').textContent.includes('Delivery timing is not available yet') && document.querySelector('#assistant-message').value === ''`,
       ),
     );
     for (let i = 0; i < 12; i++) {

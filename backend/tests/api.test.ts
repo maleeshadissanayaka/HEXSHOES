@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   listCart: vi.fn(), addCart: vi.fn(), updateCart: vi.fn(), removeCart: vi.fn(), clearCart: vi.fn(),
   searchImage: vi.fn(), searchText: vi.fn(), searchMultimodal: vi.fn(),
   similarRecommendations: vi.fn(), personalizedRecommendations: vi.fn(),
+  agentMessage: vi.fn(), agentConfirm: vi.fn(),
 }));
 vi.mock("../src/services/tokenVerifier.js", () => ({
   verifyFirebaseIdToken: mocks.verifyFirebaseIdToken,
@@ -28,6 +29,9 @@ vi.mock("../src/services/visualSearch.service.js", () => ({ visualSearchService:
 vi.mock("../src/services/recommendation.service.js", () => ({ recommendationService: {
   similar: mocks.similarRecommendations, personalized: mocks.personalizedRecommendations,
 } }));
+vi.mock("../src/agent/agent.orchestrator.js", () => ({ agentOrchestrator: {
+  message: mocks.agentMessage, confirm: mocks.agentConfirm,
+} }));
 import app from "../src/app.js";
 import { AiServiceResponseError, AiServiceUnavailableError } from "../src/services/ai.service.js";
 
@@ -42,6 +46,21 @@ describe("HEXSHOES API", () => {
     expect(response.body).toEqual({ success: true, data: {
       service: "hexshoes-api", status: "ok", environment: "test",
     } });
+  });
+
+  it("serves public agent messages with bounded structured output", async () => {
+    mocks.agentMessage.mockResolvedValue({ reply: "HEX Trail is the closest match.", intent: "PRODUCT_SEARCH", products: [], suggestedPrompts: [], context: { referencedProductIds: [], lastIntent: "PRODUCT_SEARCH" } });
+    const response = await request(app).post("/api/agent/message").send({ message: "show me a trail shoe", context: { referencedProductIds: ["hx-02"] } });
+    expect(response.status).toBe(200); expect(response.body.data.intent).toBe("PRODUCT_SEARCH");
+    expect(mocks.agentMessage).toHaveBeenCalledWith("show me a trail shoe", { referencedProductIds: ["hx-02"] }, undefined);
+  });
+
+  it("requires auth for confirmation and executes with verified identity", async () => {
+    expect((await request(app).post("/api/agent/confirm").send({ confirmationToken: "signed" })).status).toBe(401);
+    mocks.verifyFirebaseIdToken.mockResolvedValue({ uid: "user-123" } as DecodedIdToken);
+    mocks.agentConfirm.mockResolvedValue({ reply: "Done", intent: "CART_ADD", suggestedPrompts: [], context: { referencedProductIds: [] } });
+    const response = await request(app).post("/api/agent/confirm").set("Authorization", "Bearer valid-token").send({ confirmationToken: "signed" });
+    expect(response.status).toBe(200); expect(mocks.agentConfirm).toHaveBeenCalledWith("signed", expect.objectContaining({ uid: "user-123" }));
   });
 
   it("honestly reports service status", async () => {

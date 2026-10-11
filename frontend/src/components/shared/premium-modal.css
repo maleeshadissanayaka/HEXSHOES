@@ -248,6 +248,16 @@
   font-size: 0.65rem;
   font-family: var(--font-mono);
 }
+
+.assistant-products { display: grid; gap: 6px; margin-top: 10px; }
+.assistant-products a { align-items: center; border: 1px solid var(--line); display: flex; justify-content: space-between; padding: 9px 10px; text-decoration: none; }
+.assistant-products a span { display: grid; gap: 2px; }
+.assistant-products small { color: var(--muted); text-transform: capitalize; }
+.assistant-comparison, .assistant-confirm { border: 1px solid var(--line); display: grid; gap: 8px; margin-top: 10px; padding: 12px; }
+.assistant-comparison p, .assistant-summary { margin: 0; }
+.assistant-confirm > div { display: flex; gap: 8px; }
+.assistant-confirm button { border: 1px solid currentColor; padding: 7px 12px; text-transform: uppercase; }
+.assistant-confirm button:first-child { background: var(--ink); color: var(--paper); }
 @keyframes modal-in {
   from {
     opacity: 0;

@@ -167,6 +167,12 @@ The script checks the homepage at 1440, 1280, 1024, 768, and 390px; horizontal o
 
 Earlier phase review artifacts remain in their respective verification folders. This is Chromium verification, not a full cross-browser or assistive-technology audit. Screenshots and reports are review artifacts, not application assets. Media provenance and generation prompts remain in `verification/phase1-5/MEDIA.md`.
 
+## Grounded HEX Assistant
+
+The existing black/white/cobalt assistant modal calls the Express shopping-agent endpoints and renders structured canonical product links, comparisons, recommendations, cart summaries, auth prompts, errors, suggestions, and confirmation cards. Phase 1 uses deterministic routing and real existing tools; it is not presented as an LLM.
+
+The browser sends only the current product ID, up to four server-returned referenced IDs, and the last intent. Wishlist and cart writes display Confirm and Cancel controls; only Confirm returns the opaque signed token to Express. After successful execution, the shared ExperienceProvider reloads the account cart and wishlist so global counts and pages stay synchronized.
+
 ## Current status and next work
 
 The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, persistent authenticated cart, persistent authenticated saved styles, authenticated account profiles, OpenCLIP visual discovery, brand, technology, and contact pages. Guest saved styles and bag state live in memory for the current visit; checkout, payments, and inventory are not connected.

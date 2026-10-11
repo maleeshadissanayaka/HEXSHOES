@@ -48,7 +48,7 @@ const modules = [
     status: "Research",
     tag: "Agentic shopping",
     copy: "A conversation that helps you find your direction, grounded in the collection and your intent.",
-    note: "The current HEX Assistant is scripted. A grounded AI agent remains a future module.",
+    note: "The current HEX Assistant uses deterministic intent routing over grounded catalog, search, recommendation, wishlist, and cart tools. It is not an LLM.",
     asset: "hero",
   },
 ] as const;

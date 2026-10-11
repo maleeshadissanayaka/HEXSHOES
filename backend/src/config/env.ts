@@ -64,6 +64,7 @@ export const env = Object.freeze({
     timeoutMs: parsePositiveInteger(process.env.AI_SERVICE_TIMEOUT_MS, 120_000, "AI_SERVICE_TIMEOUT_MS"),
     maxImageBytes: parsePositiveInteger(process.env.VISUAL_SEARCH_MAX_IMAGE_BYTES, 5 * 1024 * 1024, "VISUAL_SEARCH_MAX_IMAGE_BYTES"),
   }),
+  agent: Object.freeze({ actionSecret: process.env.AGENT_ACTION_SECRET }),
   firebase: Object.freeze({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,

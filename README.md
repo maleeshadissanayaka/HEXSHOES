@@ -129,6 +129,12 @@ Personalized recommendations do not have genuine historical relevance or feedbac
 
 The relevance set is small, manually labeled, and drawn from the same demo catalog. Results are demonstration metrics, not production benchmarks or evidence of broad generalization. Live Firestore analytics remain aggregate-only and exclude UIDs, emails, names, tokens, and raw private records. See `data-science/README.md` for commands, metric definitions, generated reports, privacy rules, and limitations.
 
+## AI Shopping Agent
+
+The HEX Assistant is a deterministic, grounded Phase 1 shopping agent over real application tools—not an LLM. Express routes discovery through existing OpenCLIP text retrieval, resolves only canonical products, compares real catalog fields, retrieves CLIP Similar Styles, and uses existing recommendation, profile, wishlist, and cart services. Responses are structured for product links, comparisons, summaries, and grounded explanations.
+
+Authenticated mutations require an explicit second-step confirmation. The server issues short-lived HMAC-signed, UID-bound, single-use action tokens and executes only the signed action after confirmation. Context is bounded to canonical current/referenced product IDs and is not stored in Firestore. Inventory, delivery, live size availability, checkout, and return-policy data are not modeled and are never invented.
+
 ## Current status
 
 The repository now contains the React storefront, Express API, Firebase-backed account data, FastAPI/OpenCLIP retrieval service, multimodal discovery, content-based recommendations, and the evidence-limited evaluation layer described above. Commerce, sales analytics, forecasting, customer segmentation, and production-scale model evaluation are not implemented.

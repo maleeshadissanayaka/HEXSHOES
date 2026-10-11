@@ -7,6 +7,7 @@ import { wishlistRouter } from "./wishlist.routes.js";
 import { cartRouter } from "./cart.routes.js";
 import { visualSearchRouter } from "./visualSearch.routes.js";
 import { recommendationRouter } from "./recommendation.routes.js";
+import { agentRouter } from "./agent.routes.js";
 
 export const apiRouter = Router();
 apiRouter.use(healthRouter);
@@ -16,4 +17,5 @@ apiRouter.use("/wishlist", wishlistRouter);
 apiRouter.use("/cart", cartRouter);
 apiRouter.use("/visual-search", visualSearchRouter);
 apiRouter.use("/recommendations", recommendationRouter);
+apiRouter.use("/agent", agentRouter);
 apiRouter.use("/products", productRouter);

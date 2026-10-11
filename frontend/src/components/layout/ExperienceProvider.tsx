@@ -24,6 +24,11 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const wishlist = auth.user ? accountWishlist : guestWishlist;
   const cart = auth.user ? accountCart : guestCart;
+  const refreshAccountState = async () => {
+    if (!auth.user) return;
+    const [nextCart, nextWishlist] = await Promise.all([getCart(auth.user), getWishlist(auth.user)]);
+    setAccountCart(nextCart); setAccountWishlist(nextWishlist.map(({ id }) => id));
+  };
 
   useEffect(() => {
     const user = auth.user;
@@ -110,6 +115,7 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
         auth.user
           ? (setAccountWishlist((current) => current.filter((id) => id !== productId)), void removeWishlistProduct(auth.user, productId).catch(() => setAccountWishlist((current) => mergeWishlistIds(current, [productId]))))
           : setGuestWishlist((current) => current.filter((id) => id !== productId)),
+      refreshAccountState,
     }),
     [auth.user, accountCart, accountWishlist, cart, wishlist, openDialog, closeDialog],
   );

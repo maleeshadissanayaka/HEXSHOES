@@ -15,6 +15,7 @@ export const ExperienceContext = createContext<{
   updateCartQuantity: (productId: string, size: string, quantity: number) => void;
   removeCartItem: (productId: string, size: string) => void;
   removeWishlistItem: (productId: string) => void;
+  refreshAccountState: () => Promise<void>;
 } | null>(null);
 export function useExperience() {
   const context = useContext(ExperienceContext);

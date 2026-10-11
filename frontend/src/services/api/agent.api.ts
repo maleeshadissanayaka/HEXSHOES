@@ -1,0 +1,22 @@
+import type { User } from "firebase/auth";
+import type { Product } from "../../types/product";
+import { apiRequest, ApiError } from "./apiClient";
+import { adaptProduct } from "./productAdapter";
+
+export interface AgentContext { currentProductId?: string; referencedProductIds?: string[]; lastIntent?: string }
+export interface PendingAgentAction { type: string; productId: string; productName: string; quantity?: number; confirmationToken: string; expiresAt: string }
+export interface AgentResponse { reply: string; intent: string; products: Product[]; comparison?: { products: Product[]; priceDifference: number; cheaperProductId?: string }; cartSummary?: { lines: Array<{ product: Product; quantity: number; size?: string }>; itemCount: number; subtotal: number }; wishlistSummary?: { products: Product[] }; pendingAction?: PendingAgentAction; suggestedPrompts: string[]; context: AgentContext; authRequired?: boolean }
+const record = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+export function parseAgentResponse(value: unknown): AgentResponse {
+  if (!record(value) || value.success !== true || !record(value.data) || typeof value.data.reply !== "string" || typeof value.data.intent !== "string" || !Array.isArray(value.data.suggestedPrompts) || !record(value.data.context)) throw new ApiError("The agent returned an invalid response.");
+  const products = Array.isArray(value.data.products) ? value.data.products.map(adaptProduct) : [];
+  const result: AgentResponse = { reply: value.data.reply, intent: value.data.intent, products, suggestedPrompts: value.data.suggestedPrompts.filter((item): item is string => typeof item === "string").slice(0, 4), context: { referencedProductIds: Array.isArray(value.data.context.referencedProductIds) ? value.data.context.referencedProductIds.filter((id): id is string => typeof id === "string").slice(0, 4) : [], ...(typeof value.data.context.lastIntent === "string" ? { lastIntent: value.data.context.lastIntent } : {}) }, ...(value.data.authRequired === true ? { authRequired: true } : {}) };
+  if (record(value.data.pendingAction) && typeof value.data.pendingAction.confirmationToken === "string" && typeof value.data.pendingAction.type === "string" && typeof value.data.pendingAction.productId === "string" && typeof value.data.pendingAction.productName === "string" && typeof value.data.pendingAction.expiresAt === "string") result.pendingAction = value.data.pendingAction as unknown as PendingAgentAction;
+  if (record(value.data.comparison) && Array.isArray(value.data.comparison.products) && typeof value.data.comparison.priceDifference === "number") result.comparison = { products: value.data.comparison.products.map(adaptProduct), priceDifference: value.data.comparison.priceDifference, ...(typeof value.data.comparison.cheaperProductId === "string" ? { cheaperProductId: value.data.comparison.cheaperProductId } : {}) };
+  if (record(value.data.cartSummary) && Array.isArray(value.data.cartSummary.lines) && typeof value.data.cartSummary.itemCount === "number" && typeof value.data.cartSummary.subtotal === "number") result.cartSummary = { itemCount: value.data.cartSummary.itemCount, subtotal: value.data.cartSummary.subtotal, lines: value.data.cartSummary.lines.filter(record).map((line) => ({ product: adaptProduct(line.product), quantity: Number(line.quantity), ...(typeof line.size === "string" ? { size: line.size } : {}) })) };
+  if (record(value.data.wishlistSummary) && Array.isArray(value.data.wishlistSummary.products)) result.wishlistSummary = { products: value.data.wishlistSummary.products.map(adaptProduct) };
+  return result;
+}
+async function headers(user: User | null): Promise<Record<string, string>> { return user ? { Authorization: `Bearer ${await user.getIdToken()}` } : {}; }
+export async function sendAgentMessage(message: string, context: AgentContext, user: User | null, signal?: AbortSignal) { try { return parseAgentResponse(await apiRequest("/agent/message", { method: "POST", body: { message, context }, headers: await headers(user), signal })); } catch (error) { if (error instanceof ApiError && error.status === 503) throw new ApiError("AI search is temporarily unavailable; non-AI account tools remain available.", 503); throw error; } }
+export async function confirmAgentAction(confirmationToken: string, user: User) { return parseAgentResponse(await apiRequest("/agent/confirm", { method: "POST", body: { confirmationToken }, headers: await headers(user) })); }
