@@ -1,0 +1,6 @@
+[
+  { "productId": "hx-01", "imagePath": "../../frontend/public/media/presentation/runner-960.webp" },
+  { "productId": "hx-02", "imagePath": "../../frontend/public/media/presentation/trail-960.webp" },
+  { "productId": "hx-03", "imagePath": "../../frontend/public/media/presentation/slide-960.webp" },
+  { "productId": "hx-04", "imagePath": "../../frontend/public/media/presentation/mono-960.webp" }
+]

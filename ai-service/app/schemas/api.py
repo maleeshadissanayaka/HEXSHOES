@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, StrictInt, field_validator
 
 
 class TextEmbeddingRequest(BaseModel):
@@ -30,3 +30,15 @@ class TextSimilarityRequest(BaseModel):
         if any(not value.strip() for value in values):
             raise ValueError("candidates must not contain blank text")
         return [value.strip() for value in values]
+
+
+class ProductTextSearchRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=1000)
+    top_k: StrictInt = Field(default=4, alias="topK", ge=1)
+
+    @field_validator("query")
+    @classmethod
+    def query_must_not_be_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("query must not be blank")
+        return value.strip()
