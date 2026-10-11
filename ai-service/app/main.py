@@ -1,7 +1,9 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from app.api.routes import router
 from app.config import Settings, settings
@@ -28,6 +30,19 @@ def create_app(app_settings: Settings = settings, clip_model: ClipModelService |
         yield
 
     application = FastAPI(title="HEXSHOES AI Service", version="0.1.0", lifespan=lifespan)
+    @application.exception_handler(HTTPException)
+    async def http_error(_request: Request, error: HTTPException) -> JSONResponse:
+        message = error.detail if isinstance(error.detail, str) else "Request failed"
+        return JSONResponse(status_code=error.status_code, content={"success": False, "error": {"message": message}})
+
+    @application.exception_handler(RequestValidationError)
+    async def validation_error(_request: Request, _error: RequestValidationError) -> JSONResponse:
+        return JSONResponse(status_code=422, content={"success": False, "error": {"message": "Request validation failed"}})
+
+    @application.exception_handler(Exception)
+    async def internal_error(_request: Request, _error: Exception) -> JSONResponse:
+        return JSONResponse(status_code=500, content={"success": False, "error": {"message": "Internal server error"}})
+
     application.include_router(router)
     return application
 

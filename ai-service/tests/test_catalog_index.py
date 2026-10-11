@@ -22,6 +22,14 @@ def test_manifest_requires_each_canonical_product_once(tmp_path: Path) -> None:
         load_manifest(write_manifest(tmp_path / "invalid.json", invalid))
 
 
+def test_manifest_rejects_paths_outside_repository_boundary(tmp_path: Path) -> None:
+    manifest_dir = tmp_path / "repo" / "ai-service" / "data"
+    manifest_dir.mkdir(parents=True)
+    items = [{"productId": f"hx-0{number}", "imagePath": "../../../../outside.webp"} for number in range(1, 5)]
+    with pytest.raises(ValueError, match="escapes the repository"):
+        load_manifest(write_manifest(manifest_dir / "catalog.json", items))
+
+
 def save_index(directory: Path, matrix: np.ndarray, ids: list[str], metadata: dict[str, object]) -> CatalogIndexService:
     directory.mkdir()
     np.save(directory / "product_embeddings.npy", matrix, allow_pickle=False)

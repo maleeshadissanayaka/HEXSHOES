@@ -152,3 +152,7 @@ Run the separately marked real-model smoke test with:
 ## Current limitations
 
 The catalog has only four products and one indexed image per product. Recommendations are therefore a transparent catalog demonstration, not evidence of general recommendation quality. There is no collaborative filtering, learned weighting, behavioral event history, held-out relevance dataset, vector database, batching queue, rate limiting, forecasting, segmentation, or claimed production quality. CPU inference is supported but can be slow, especially during initial model loading. The in-memory NumPy matrix remains appropriate; a larger catalog could later use an approximate-nearest-neighbor index without changing API ownership.
+
+## Readiness and request safety
+
+`GET /health` is process liveness. `GET /status` returns HTTP 503 until both OpenCLIP and a model-matching catalog index are loaded and reports their separate states. Manifest image paths must resolve inside the repository. Public failures use `{ success: false, error: { message } }` without Python traces. Browser traffic goes through Express, so FastAPI intentionally has no browser CORS middleware.

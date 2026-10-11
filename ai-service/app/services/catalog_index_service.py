@@ -56,6 +56,9 @@ def load_manifest(path: Path) -> list[CatalogItem]:
         if not isinstance(image_path, str) or not image_path.strip():
             raise ValueError(f"Invalid image path for {product_id}")
         resolved = (path.parent / image_path).resolve()
+        repository_root = path.resolve().parent.parent.parent
+        if not resolved.is_relative_to(repository_root):
+            raise ValueError(f"Catalog image path escapes the repository: {product_id}")
         items.append(CatalogItem(product_id, resolved))
     ids = [item.product_id for item in items]
     if len(ids) != len(set(ids)) or set(ids) != CANONICAL_PRODUCT_IDS:

@@ -4,7 +4,14 @@ import { env } from "../config/env.js";
 
 interface Claims extends AgentAction { uid: string; exp: number; jti: string }
 const actionTypes = new Set(["WISHLIST_ADD", "WISHLIST_REMOVE", "CART_ADD", "CART_REMOVE", "CART_UPDATE"]);
-const secret = env.agent.actionSecret?.trim() || randomBytes(32).toString("hex");
+export const resolveActionSecret = (configured: string | undefined, environment = env.nodeEnv) => {
+  const value = configured?.trim();
+  if (environment === "production" && (!value || value.length < 32)) {
+    throw new Error("AGENT_ACTION_SECRET must contain at least 32 characters in production");
+  }
+  return value || randomBytes(32).toString("hex");
+};
+const secret = resolveActionSecret(env.agent.actionSecret);
 export class AgentConfirmationService {
   private readonly used = new Set<string>();
   constructor(private readonly signingSecret = secret, private readonly ttlMs = 5 * 60_000, private readonly now = () => Date.now()) {}

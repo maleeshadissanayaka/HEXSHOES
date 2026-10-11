@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { AgentConfirmationService } from "../src/agent/agent.confirmation.js";
+import { AgentConfirmationService, resolveActionSecret } from "../src/agent/agent.confirmation.js";
 
 describe("agent confirmation security", () => {
+  it("requires a strong configured secret in production", () => {
+    expect(() => resolveActionSecret(undefined, "production")).toThrow("at least 32 characters");
+    expect(() => resolveActionSecret("too-short", "production")).toThrow("at least 32 characters");
+    expect(resolveActionSecret("x".repeat(32), "production")).toBe("x".repeat(32));
+  });
   it("binds a single-use action to the correct user", () => {
     const service = new AgentConfirmationService("a-secure-test-secret", 1000, () => 100);
     const issued = service.issue("owner", { type: "CART_ADD", productId: "hx-01", quantity: 2 });

@@ -1,6 +1,7 @@
 from io import BytesIO
 
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi.responses import JSONResponse
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 
@@ -58,24 +59,25 @@ def root() -> dict[str, object]:
 
 @router.get("/health")
 def health(request: Request) -> dict[str, object]:
-    ready = request.app.state.clip_model.ready
-    return {"success": ready, "service": "hexshoes-ai", "status": "healthy" if ready else "unavailable"}
+    return {"success": True, "service": "hexshoes-ai", "status": "healthy"}
 
 
 @router.get("/status")
-def status(request: Request) -> dict[str, object]:
+def status(request: Request) -> JSONResponse:
     clip = request.app.state.clip_model
-    return {
-        "success": clip.ready,
+    index_status = request.app.state.catalog_index.status()
+    ready = clip.ready and bool(index_status["loaded"]) and bool(index_status["modelMatch"])
+    return JSONResponse(status_code=200 if ready else 503, content={
+        "success": ready,
         "data": {
-            "service": "ready" if clip.ready else "unavailable",
+            "service": "ready" if ready else "unavailable",
             "device": str(clip.device),
             "modelInitialization": clip.initialization_state,
             "model": clip.model_name,
             "pretrained": clip.pretrained,
-            "catalogIndex": request.app.state.catalog_index.status(),
+            "catalogIndex": index_status,
         },
-    }
+    })
 
 
 @router.post("/embed/text")

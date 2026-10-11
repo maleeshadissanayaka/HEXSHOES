@@ -13,8 +13,14 @@ export const getStatus: RequestHandler = (_request, response) => {
   response.status(200).json({
     success: true,
     data: {
-      backend: "READY", database: databaseStatus, authentication: "READY",
-      aiService: { configured: true }, commerce: "FOUNDATION",
+      backend: { process: "healthy" },
+      productDataSource: databaseStatus,
+      firebase: {
+        configured: Boolean(env.firebase.projectId && env.firebase.clientEmail && env.firebase.privateKey),
+        connectivity: "not-probed",
+      },
+      aiService: { configured: true, connectivity: "not-probed" },
+      commerce: "foundation-only",
     },
   });
 };

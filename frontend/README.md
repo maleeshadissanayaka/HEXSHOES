@@ -178,3 +178,7 @@ The browser sends only the current product ID, up to four server-returned refere
 The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, persistent authenticated cart, persistent authenticated saved styles, authenticated account profiles, OpenCLIP visual discovery, brand, technology, and contact pages. Guest saved styles and bag state live in memory for the current visit; checkout, payments, and inventory are not connected.
 
 Remaining work belongs to separately scoped integrations: connect commerce services, add licensed retail photography, implement checkout, and evaluate visual retrieval with held-out query images. Cross-browser Safari/Firefox and hands-on assistive-technology testing are also still recommended.
+
+## Deployment and failure behavior
+
+Set `VITE_API_BASE_URL` to the public Express `/api` base and configure only the documented public Firebase web values. Admin credentials and agent signing secrets never belong in Vite variables. Catalog, product, account, recommendation, visual-search, and assistant flows expose loading and controlled empty/error states; FastAPI failures surface through Express without bypassing the storefront. Deployment is planned, not completed, and the current accessibility work is a keyboard/semantic sanity pass rather than WCAG certification.

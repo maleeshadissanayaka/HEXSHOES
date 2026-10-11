@@ -1,16 +1,42 @@
 # HEXSHOES
 
-AI-Powered Retail Intelligence & Footwear Discovery Platform
+HEXSHOES is a portfolio-scale footwear storefront combining a React customer experience, authenticated Firebase account data, OpenCLIP discovery, transparent content-based recommendations, and a deterministic tool-using shopping assistant. The catalog contains four concept products; it is not a live store and does not claim inventory, payments, shipping, sales, or production-scale performance.
 
-HEXSHOES is a planned footwear discovery and retail intelligence platform with two goals: demonstrate practical Data Science and Software Engineering skills, and establish a foundation for a future footwear e-commerce business.
+## Architecture
 
-## Local Development
+```mermaid
+flowchart LR
+  UI[React + TypeScript] --> API[Express + TypeScript API]
+  API --> AUTH[Firebase Auth]
+  API --> DB[(Firestore)]
+  API --> AGENT[Shopping agent orchestrator]
+  AGENT --> TOOLS[Catalog, wishlist, cart, recommendation tools]
+  TOOLS --> AI[FastAPI AI service]
+  API --> AI
+  AI --> CLIP[PyTorch + OpenCLIP]
+  CLIP --> INDEX[(Normalized embedding index)]
+  DS[Data-science evaluation scripts] --> AI
+  DS --> INDEX
+```
 
-The root developer workflow starts the React frontend, Express backend, and FastAPI AI service together with labeled output. It is designed for Windows PowerShell and does not install dependencies or create environment files automatically.
+The browser calls Express only. Express owns canonical product data, authentication, authorization, and persisted mutations; FastAPI owns embedding inference and ranking and never accesses Firebase. The shopping agent uses deterministic intent routing—not an LLM—and requires a signed, short-lived confirmation before cart or wishlist changes.
 
-### One-time setup
+## Implemented capabilities
 
-From the repository root:
+- Responsive React/Vite storefront with catalog, product, account, wishlist, cart, and editorial routes.
+- Firebase email/Google authentication plus server-side revoked-token verification; Firestore profile, wishlist, and cart ownership is derived only from the verified token.
+- Real OpenCLIP image, text, and manually weighted multimodal retrieval over four normalized product-image embeddings.
+- Product Similar Styles and content-based recommendations from real wishlist/cart signals, with deterministic grounded reasons and honest cold start.
+- Grounded shopping agent for discovery, comparison, recommendations, safe account reads, and confirmed cart/wishlist writes.
+- Reproducible retrieval metrics, recommendation-mechanics checks, similarity analysis, and exploratory PCA. The eight-query relevance set is manually labeled from the same demo catalog, so results are demonstration metrics—not production benchmarks.
+
+## Technology
+
+React 19, TypeScript, Vite, Express 5, Firebase Auth/Admin/Firestore, FastAPI, PyTorch, OpenCLIP, NumPy, scikit-learn, Vitest, Node test runner, pytest, and Chromium DevTools Protocol verification.
+
+## Local setup
+
+Prerequisites are Node.js 20+, npm, Python 3.11/3.12, and Firebase credentials for authenticated persistence.
 
 ```powershell
 npm install
@@ -18,125 +44,35 @@ npm --prefix frontend install
 npm --prefix backend install
 py -3.11 -m venv ai-service/.venv
 ai-service\.venv\Scripts\python.exe -m pip install -r ai-service\requirements.txt
-```
-
-Keep the required local configuration in `frontend/.env` and `backend/.env`. Keep `ai-service/.env` only when overriding its documented defaults. These files are ignored and must not be committed or overwritten by the startup workflow.
-
-If `ai-service/.venv` is missing, AI startup fails visibly. Create the virtual environment and install `ai-service/requirements.txt`; startup never installs Python packages silently.
-
-### Daily startup
-
-```powershell
+Copy-Item frontend\.env.example frontend\.env
+Copy-Item backend\.env.example backend\.env
 npm run dev
 ```
 
-This starts:
+Services default to frontend `5173`, backend `5000`, and AI `8000`. `npm run health` checks all three. Environment files are ignored; do not commit service accounts, private keys, tokens, or model caches. See each service README and [deployment plan](docs/deployment.md) for configuration.
 
-- Frontend: `http://127.0.0.1:5173`
-- Backend: `http://127.0.0.1:5000`
-- AI service: `http://127.0.0.1:8000`
+## Security and reliability boundaries
 
-Check all three from another terminal with `npm run health`. Stop the coordinated development process with `Ctrl+C`; the runner forwards shutdown to every child service.
+Express uses Helmet, explicit-origin CORS, 1 MiB JSON/form limits, bounded 5 MiB image uploads with signature validation, Firebase token verification, canonical product resolution, and generic public 500 errors. Agent actions use HMAC-signed, UID-bound, expiring, single-use tokens; production requires an `AGENT_ACTION_SECRET` of at least 32 characters. FastAPI validates decoded images and index/model metadata, confines manifest image paths to the repository, returns structured errors, and has no random embedding fallback. `/health` is process liveness; AI `/status` returns 503 until both model and catalog index are ready.
 
-Individual services can also be started from the repository root:
+Logs intentionally exclude ID tokens, confirmation tokens, emails, profile fields, image bytes, and secrets. This is portfolio/demo hardening, not a claim of formal penetration testing, WCAG conformance, an SLA, distributed rate limiting, or production certification.
 
-```powershell
-npm run dev:frontend
-npm run dev:backend
-npm run dev:ai
-```
+## Validation and documentation
 
-## Problem
+- [API reference](docs/api.md)
+- [Deployment plan](docs/deployment.md)
+- [Portfolio claim audit](docs/portfolio-claims.md)
+- [3–5 minute demo](docs/demo-script.md)
+- [Screenshot plan](docs/screenshot-plan.md)
+- [Latest validation evidence](docs/validation-report.md)
+- [Data-science methodology](data-science/README.md)
 
-Footwear shoppers often struggle to find products that match their visual preferences. Retailers also need ways to turn catalog and customer data into useful merchandising and business decisions. HEXSHOES aims to connect product discovery with evidence-based retail intelligence.
+## Screenshots
 
-## Vision
+Screenshots are intentionally not committed in this phase. The capture list is in [docs/screenshot-plan.md](docs/screenshot-plan.md); local verification artifacts stay untracked.
 
-Build a retail-first experience with premium editorial presentation, responsive layouts, strong typography, large product photography, and subtle motion. The visual direction combines black, charcoal, and off-white with a restrained electric blue accent.
+## Limitations and future work
 
-The platform will grow in stages, beginning with a dependable software foundation and later introducing measurable, explainable intelligence. Planned capabilities described here are not implemented.
+The four-product, one-image-per-product catalog cannot establish broad retrieval or recommendation quality. There is no inventory/size availability, checkout, payment, shipping/returns integration, order history, collaborative filtering, behavioral event pipeline, forecasting, customer segmentation, distributed rate limiter, production monitoring, or deployed environment. Future work should begin with deployment observation, held-out evaluation data, cross-browser/manual assistive-technology testing, and only then scale catalog/index infrastructure where evidence justifies it.
 
-## Planned technology stack
-
-| Area | Technologies and purpose |
-| --- | --- |
-| Frontend | React, TypeScript, Vite; responsive footwear shopping experience |
-| Backend | Node.js, Express, TypeScript; REST APIs |
-| Data platform | Firebase Firestore and Firebase Authentication |
-| AI service | Python, FastAPI, PyTorch, OpenCLIP / CLIP |
-| Visual retrieval | Image embeddings and cosine similarity retrieval |
-| Data Science | Catalog exploration, experimentation, evaluation, and future retail intelligence |
-
-## Planned architecture
-
-```text
-React + TypeScript
-        ↓
-Node.js + Express API
-        ↓
-Firebase Firestore / Auth
-
-React
-        ↓
-FastAPI AI Service
-        ↓
-PyTorch + OpenCLIP
-
-Future intelligence layer:
-recommendations · segmentation · forecasting · analytics · AI agent
-```
-
-The backend is planned to provide retail APIs and integrate with Firebase. The AI service is planned as a separate Python service for embedding generation and similarity retrieval. Authentication, authorization, service boundaries, and deployment details will be defined during subsequent phases.
-
-## AI / ML / DL / Data Science direction
-
-The initial AI direction is visual footwear discovery using CLIP-based deep learning image embeddings and cosine similarity. Later work may extend retrieval to multimodal search and introduce recommendation systems, customer segmentation, retail analytics, demand forecasting, explainable AI, recommendation evaluation, and an AI shopping assistant / agent.
-
-Experiments will distinguish measured results from assumptions and document data quality, evaluation methods, and limitations. No model, metric, or intelligence module exists in Phase 0.
-
-## Repository structure
-
-```text
-HEXSHOES/
-├── frontend/       # Future React application
-├── backend/        # Future Express REST API
-├── ai-service/     # Future FastAPI and embedding service
-├── catalog/        # Future catalog resources and documentation
-├── data-science/   # Future research, experiments, and evaluation
-├── firebase/       # Future Firebase configuration and rules
-├── docs/           # Future architecture and development documentation
-├── .gitignore
-└── README.md
-```
-
-Directories are intentionally empty in Phase 0. Git does not track empty directories; this phase does not add placeholder files.
-
-## Development phases
-
-1. **Phase 0 — Project foundation:** create the repository layout, root documentation, ignore rules, and a local Git repository on `main`.
-2. **Application foundation:** establish frontend, backend, Firebase integration, and development tooling.
-3. **Retail experience:** develop catalog browsing and a responsive premium footwear discovery experience.
-4. **Visual AI discovery:** implement the FastAPI service, embeddings, cosine similarity retrieval, and meaningful evaluation.
-5. **Future intelligence:** incrementally investigate multimodal search, recommendations, segmentation, analytics, forecasting, explainability, and an AI shopping agent.
-
-Later phases are provisional and require separate implementation work.
-
-## Data Science Evaluation
-
-The repository includes a reproducible, evidence-limited evaluation layer in `data-science/`. A small manually labeled query set derived from the real four-product catalog measures OpenCLIP text retrieval with Precision@K, Recall@K, MRR, and NDCG@K. The evaluation executes real model embeddings and catalog ranking; expected rankings are not hardcoded.
-
-Personalized recommendations do not have genuine historical relevance or feedback labels, so recommendation accuracy metrics are intentionally not reported. Instead, deterministic sanity checks cover product exclusion, valid IDs, repeatability, grounded reason codes, and honest cold-start behavior. Persisted product-image embeddings are analyzed with cosine similarity and deterministic PCA. Clustering is omitted because four samples cannot support meaningful cluster interpretation.
-
-The relevance set is small, manually labeled, and drawn from the same demo catalog. Results are demonstration metrics, not production benchmarks or evidence of broad generalization. Live Firestore analytics remain aggregate-only and exclude UIDs, emails, names, tokens, and raw private records. See `data-science/README.md` for commands, metric definitions, generated reports, privacy rules, and limitations.
-
-## AI Shopping Agent
-
-The HEX Assistant is a deterministic, grounded Phase 1 shopping agent over real application tools—not an LLM. Express routes discovery through existing OpenCLIP text retrieval, resolves only canonical products, compares real catalog fields, retrieves CLIP Similar Styles, and uses existing recommendation, profile, wishlist, and cart services. Responses are structured for product links, comparisons, summaries, and grounded explanations.
-
-Authenticated mutations require an explicit second-step confirmation. The server issues short-lived HMAC-signed, UID-bound, single-use action tokens and executes only the signed action after confirmation. Context is bounded to canonical current/referenced product IDs and is not stored in Firestore. Inventory, delivery, live size availability, checkout, and return-policy data are not modeled and are never invented.
-
-## Current status
-
-The repository now contains the React storefront, Express API, Firebase-backed account data, FastAPI/OpenCLIP retrieval service, multimodal discovery, content-based recommendations, and the evidence-limited evaluation layer described above. Commerce, sales analytics, forecasting, customer segmentation, and production-scale model evaluation are not implemented.
-
-Keep credentials, environment files, Firebase service accounts, and private keys out of version control. Future `.env.example` files should contain placeholders only. Ignore rules reduce accidental tracking but do not replace credential checks.
+Deployment is **planned, not completed**.

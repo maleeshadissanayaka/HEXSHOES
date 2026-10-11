@@ -107,3 +107,7 @@ Browser context is limited to a current product and at most four referenced prod
 The local products remain presentation fixtures and also serve as the deterministic Firestore seed source. They are not inventory, availability, sales, demand, review, or recommendation data.
 
 Firebase Admin supports Firestore access, Firebase ID-token verification, user profiles, saved styles, authenticated carts, and ephemeral content-based personalization, but a live project requires server credentials. Collaborative filtering, behavioral event tracking, analytics, checkout, inventory, commerce workflows, and payments are not implemented.
+
+## Production hardening notes
+
+Production requires an exact `FRONTEND_ORIGIN`, private `AI_SERVICE_BASE_URL`, Firebase Admin credentials, and a unique `AGENT_ACTION_SECRET` of at least 32 characters in the host secret store. Only local development/test may use the generated process-lifetime action secret. `/api/health` is process liveness; AI-dependent routes return controlled `503` responses when unavailable. Logs exclude bearer/action tokens, emails, private profile fields, uploaded bytes, and secrets.

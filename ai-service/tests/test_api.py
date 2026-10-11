@@ -39,9 +39,11 @@ def test_health_and_status_are_honest_after_successful_startup() -> None:
     app = create_app(TEST_SETTINGS, StubClip())  # type: ignore[arg-type]
     with TestClient(app) as client:
         assert client.get("/health").json() == {"success": True, "service": "hexshoes-ai", "status": "healthy"}
-        status = client.get("/status").json()
-        assert status["success"] is True
-        assert status["data"] == {"service": "ready", "device": "cpu", "modelInitialization": "ready", "model": "test-model", "pretrained": "test-weights", "catalogIndex": {"loaded": False, "productCount": 0, "embeddingDimension": None, "modelMatch": False}}
+        response = client.get("/status")
+        assert response.status_code == 503
+        status = response.json()
+        assert status["success"] is False
+        assert status["data"] == {"service": "unavailable", "device": "cpu", "modelInitialization": "ready", "model": "test-model", "pretrained": "test-weights", "catalogIndex": {"loaded": False, "productCount": 0, "embeddingDimension": None, "modelMatch": False}}
 
 
 def test_text_routes_return_metadata_not_raw_embeddings() -> None:
@@ -61,7 +63,9 @@ def test_validation_errors_do_not_invoke_model() -> None:
     app = create_app(TEST_SETTINGS, StubClip())  # type: ignore[arg-type]
     with TestClient(app) as client:
         app.state.embedding_service = SimpleNamespace()
-        assert client.post("/embed/text", json={"text": " "}).status_code == 422
+        invalid = client.post("/embed/text", json={"text": " "})
+        assert invalid.status_code == 422
+        assert invalid.json() == {"success": False, "error": {"message": "Request validation failed"}}
         assert client.post("/similarity/text", json={"query": "shoe", "candidates": []}).status_code == 422
 
 

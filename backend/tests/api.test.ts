@@ -67,8 +67,9 @@ describe("HEXSHOES API", () => {
     const response = await request(app).get("/api/status");
     expect(response.status).toBe(200);
     expect(response.body.data).toMatchObject({
-      backend: "READY", database: "FIXTURE", authentication: "READY",
-      aiService: { configured: true }, commerce: "FOUNDATION",
+      backend: { process: "healthy" }, productDataSource: "FIXTURE",
+      firebase: { configured: expect.any(Boolean), connectivity: "not-probed" },
+      aiService: { configured: true }, commerce: "foundation-only",
     });
   });
 
@@ -245,7 +246,7 @@ describe("HEXSHOES API", () => {
   it("validates visual-search image uploads", async () => {
     expect((await request(app).post("/api/visual-search")).status).toBe(400);
     expect((await request(app).post("/api/visual-search").attach("image", Buffer.from("text"), { filename: "query.txt", contentType: "text/plain" })).status).toBe(400);
-    expect((await request(app).post("/api/visual-search").attach("image", Buffer.alloc(5 * 1024 * 1024 + 1), { filename: "large.png", contentType: "image/png" })).status).toBe(400);
+    expect((await request(app).post("/api/visual-search").attach("image", Buffer.alloc(5 * 1024 * 1024 + 1), { filename: "large.png", contentType: "image/png" })).status).toBe(413);
     expect((await request(app).post("/api/visual-search").attach("image", Buffer.from("not a png"), { filename: "spoofed.png", contentType: "image/png" })).status).toBe(400);
     expect(mocks.searchImage).not.toHaveBeenCalled();
   });
