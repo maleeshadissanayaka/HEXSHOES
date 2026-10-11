@@ -1,0 +1,7 @@
+productIdA,productIdB,cosineSimilarity
+hx-01,hx-02,0.605868058
+hx-01,hx-03,0.526002251
+hx-01,hx-04,0.545292504
+hx-02,hx-03,0.372952055
+hx-02,hx-04,0.471411144
+hx-03,hx-04,0.581826753

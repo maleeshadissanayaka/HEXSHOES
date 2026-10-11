@@ -121,8 +121,16 @@ Directories are intentionally empty in Phase 0. Git does not track empty directo
 
 Later phases are provisional and require separate implementation work.
 
-## Current status: Phase 0
+## Data Science Evaluation
 
-Only the project foundation has been created. There is no application code, installed dependency set, Firebase setup, AI model, or running service. The local Git repository uses `main`; no remote or commit has been created during this phase.
+The repository includes a reproducible, evidence-limited evaluation layer in `data-science/`. A small manually labeled query set derived from the real four-product catalog measures OpenCLIP text retrieval with Precision@K, Recall@K, MRR, and NDCG@K. The evaluation executes real model embeddings and catalog ranking; expected rankings are not hardcoded.
+
+Personalized recommendations do not have genuine historical relevance or feedback labels, so recommendation accuracy metrics are intentionally not reported. Instead, deterministic sanity checks cover product exclusion, valid IDs, repeatability, grounded reason codes, and honest cold-start behavior. Persisted product-image embeddings are analyzed with cosine similarity and deterministic PCA. Clustering is omitted because four samples cannot support meaningful cluster interpretation.
+
+The relevance set is small, manually labeled, and drawn from the same demo catalog. Results are demonstration metrics, not production benchmarks or evidence of broad generalization. Live Firestore analytics remain aggregate-only and exclude UIDs, emails, names, tokens, and raw private records. See `data-science/README.md` for commands, metric definitions, generated reports, privacy rules, and limitations.
+
+## Current status
+
+The repository now contains the React storefront, Express API, Firebase-backed account data, FastAPI/OpenCLIP retrieval service, multimodal discovery, content-based recommendations, and the evidence-limited evaluation layer described above. Commerce, sales analytics, forecasting, customer segmentation, and production-scale model evaluation are not implemented.
 
 Keep credentials, environment files, Firebase service accounts, and private keys out of version control. Future `.env.example` files should contain placeholders only. Ignore rules reduce accidental tracking but do not replace credential checks.

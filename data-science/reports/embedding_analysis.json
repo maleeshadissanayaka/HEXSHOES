@@ -1,0 +1,10 @@
+{
+  "label": "Exploratory 2D projection of 512D CLIP embeddings.",
+  "productCount": 4,
+  "explainedVarianceRatio": [
+    0.4631002057969045,
+    0.2903081393862651
+  ],
+  "explainedVarianceTotal": 0.7534083451831696,
+  "clustering": "Skipped: four products are insufficient for a credible clustering interpretation."
+}

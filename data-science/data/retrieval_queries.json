@@ -1,0 +1,10 @@
+[
+  { "query": "running shoe", "relevantProductIds": ["hx-01"], "rationale": "HEX Runner is the catalog's running product." },
+  { "query": "lightweight running sneaker", "relevantProductIds": ["hx-01"], "rationale": "HEX Runner is described as a lightweight running silhouette." },
+  { "query": "trail shoe", "relevantProductIds": ["hx-02"], "rationale": "HEX Trail is the catalog's trail product." },
+  { "query": "shoe for trails", "relevantProductIds": ["hx-02"], "rationale": "HEX Trail is explicitly trail-focused." },
+  { "query": "slide sandal", "relevantProductIds": ["hx-03"], "rationale": "HEX Slide is the catalog's slide silhouette." },
+  { "query": "minimal slide", "relevantProductIds": ["hx-03"], "rationale": "HEX Slide is described as a minimal slide silhouette." },
+  { "query": "monochrome lifestyle sneaker", "relevantProductIds": ["hx-04"], "rationale": "HEX Mono is the monochrome lifestyle product." },
+  { "query": "minimal everyday sneaker", "relevantProductIds": ["hx-04"], "rationale": "HEX Mono is the catalog's restrained lifestyle/everyday silhouette." }
+]

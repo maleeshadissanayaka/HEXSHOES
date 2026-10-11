@@ -1,0 +1,278 @@
+{
+  "label": "Demonstration metrics on a small manually labeled four-product catalog",
+  "queryCount": 8,
+  "k": 3,
+  "summary": {
+    "precisionAt1": 1.0,
+    "precisionAt3": 0.3333333333333333,
+    "recallAt3": 1.0,
+    "reciprocalRank": 1.0,
+    "ndcgAt3": 1.0
+  },
+  "queries": [
+    {
+      "query": "running shoe",
+      "relevantProductIds": [
+        "hx-01"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-01",
+          "similarityScore": 0.27873310446739197
+        },
+        {
+          "rank": 2,
+          "productId": "hx-02",
+          "similarityScore": 0.22675782442092896
+        },
+        {
+          "rank": 3,
+          "productId": "hx-04",
+          "similarityScore": 0.19587844610214233
+        },
+        {
+          "rank": 4,
+          "productId": "hx-03",
+          "similarityScore": 0.159992516040802
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    },
+    {
+      "query": "lightweight running sneaker",
+      "relevantProductIds": [
+        "hx-01"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-01",
+          "similarityScore": 0.2920791208744049
+        },
+        {
+          "rank": 2,
+          "productId": "hx-02",
+          "similarityScore": 0.2274172306060791
+        },
+        {
+          "rank": 3,
+          "productId": "hx-04",
+          "similarityScore": 0.2261955738067627
+        },
+        {
+          "rank": 4,
+          "productId": "hx-03",
+          "similarityScore": 0.180695578455925
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    },
+    {
+      "query": "trail shoe",
+      "relevantProductIds": [
+        "hx-02"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-02",
+          "similarityScore": 0.29501739144325256
+        },
+        {
+          "rank": 2,
+          "productId": "hx-01",
+          "similarityScore": 0.2288038283586502
+        },
+        {
+          "rank": 3,
+          "productId": "hx-03",
+          "similarityScore": 0.16360904276371002
+        },
+        {
+          "rank": 4,
+          "productId": "hx-04",
+          "similarityScore": 0.1585482954978943
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    },
+    {
+      "query": "shoe for trails",
+      "relevantProductIds": [
+        "hx-02"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-02",
+          "similarityScore": 0.3009033799171448
+        },
+        {
+          "rank": 2,
+          "productId": "hx-01",
+          "similarityScore": 0.24858805537223816
+        },
+        {
+          "rank": 3,
+          "productId": "hx-03",
+          "similarityScore": 0.19710992276668549
+        },
+        {
+          "rank": 4,
+          "productId": "hx-04",
+          "similarityScore": 0.19221815466880798
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    },
+    {
+      "query": "slide sandal",
+      "relevantProductIds": [
+        "hx-03"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-03",
+          "similarityScore": 0.3271697163581848
+        },
+        {
+          "rank": 2,
+          "productId": "hx-04",
+          "similarityScore": 0.1714453101158142
+        },
+        {
+          "rank": 3,
+          "productId": "hx-01",
+          "similarityScore": 0.12072564661502838
+        },
+        {
+          "rank": 4,
+          "productId": "hx-02",
+          "similarityScore": 0.08342334628105164
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    },
+    {
+      "query": "minimal slide",
+      "relevantProductIds": [
+        "hx-03"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-03",
+          "similarityScore": 0.26490074396133423
+        },
+        {
+          "rank": 2,
+          "productId": "hx-04",
+          "similarityScore": 0.2352520078420639
+        },
+        {
+          "rank": 3,
+          "productId": "hx-01",
+          "similarityScore": 0.16579553484916687
+        },
+        {
+          "rank": 4,
+          "productId": "hx-02",
+          "similarityScore": 0.15359845757484436
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    },
+    {
+      "query": "monochrome lifestyle sneaker",
+      "relevantProductIds": [
+        "hx-04"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-04",
+          "similarityScore": 0.3296820819377899
+        },
+        {
+          "rank": 2,
+          "productId": "hx-01",
+          "similarityScore": 0.2638187110424042
+        },
+        {
+          "rank": 3,
+          "productId": "hx-03",
+          "similarityScore": 0.24130213260650635
+        },
+        {
+          "rank": 4,
+          "productId": "hx-02",
+          "similarityScore": 0.17866629362106323
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    },
+    {
+      "query": "minimal everyday sneaker",
+      "relevantProductIds": [
+        "hx-04"
+      ],
+      "ranking": [
+        {
+          "rank": 1,
+          "productId": "hx-04",
+          "similarityScore": 0.32962286472320557
+        },
+        {
+          "rank": 2,
+          "productId": "hx-03",
+          "similarityScore": 0.2564685642719269
+        },
+        {
+          "rank": 3,
+          "productId": "hx-01",
+          "similarityScore": 0.25509709119796753
+        },
+        {
+          "rank": 4,
+          "productId": "hx-02",
+          "similarityScore": 0.18005552887916565
+        }
+      ],
+      "precisionAt1": 1.0,
+      "precisionAt3": 0.3333333333333333,
+      "recallAt3": 1.0,
+      "reciprocalRank": 1.0,
+      "ndcgAt3": 1.0
+    }
+  ]
+}

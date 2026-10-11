@@ -1,0 +1,38 @@
+{
+  "label": "Algorithm test scenarios; not user data and not recommendation accuracy.",
+  "scenario": {
+    "wishlist": [
+      "hx-01"
+    ],
+    "cart": [
+      {
+        "productId": "hx-03",
+        "quantityEquivalentWeight": 1.3
+      }
+    ]
+  },
+  "checks": {
+    "sourceProductExcluded": true,
+    "interactedItemsExcluded": true,
+    "deterministicRepeatability": true,
+    "reasonCodesGrounded": true,
+    "validProductIdsOnly": true,
+    "coldStartCorrect": true
+  },
+  "recommendations": [
+    {
+      "rank": 1,
+      "productId": "hx-04",
+      "score": 0.6461971998214722,
+      "reasonCode": "SIMILAR_TO_CART",
+      "reasonProductId": "hx-03"
+    },
+    {
+      "rank": 2,
+      "productId": "hx-02",
+      "score": 0.5414679050445557,
+      "reasonCode": "SIMILAR_TO_WISHLIST",
+      "reasonProductId": "hx-01"
+    }
+  ]
+}
