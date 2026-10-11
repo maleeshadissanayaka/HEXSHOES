@@ -4,6 +4,48 @@ AI-Powered Retail Intelligence & Footwear Discovery Platform
 
 HEXSHOES is a planned footwear discovery and retail intelligence platform with two goals: demonstrate practical Data Science and Software Engineering skills, and establish a foundation for a future footwear e-commerce business.
 
+## Local Development
+
+The root developer workflow starts the React frontend, Express backend, and FastAPI AI service together with labeled output. It is designed for Windows PowerShell and does not install dependencies or create environment files automatically.
+
+### One-time setup
+
+From the repository root:
+
+```powershell
+npm install
+npm --prefix frontend install
+npm --prefix backend install
+py -3.11 -m venv ai-service/.venv
+ai-service\.venv\Scripts\python.exe -m pip install -r ai-service\requirements.txt
+```
+
+Keep the required local configuration in `frontend/.env` and `backend/.env`. Keep `ai-service/.env` only when overriding its documented defaults. These files are ignored and must not be committed or overwritten by the startup workflow.
+
+If `ai-service/.venv` is missing, AI startup fails visibly. Create the virtual environment and install `ai-service/requirements.txt`; startup never installs Python packages silently.
+
+### Daily startup
+
+```powershell
+npm run dev
+```
+
+This starts:
+
+- Frontend: `http://127.0.0.1:5173`
+- Backend: `http://127.0.0.1:5000`
+- AI service: `http://127.0.0.1:8000`
+
+Check all three from another terminal with `npm run health`. Stop the coordinated development process with `Ctrl+C`; the runner forwards shutdown to every child service.
+
+Individual services can also be started from the repository root:
+
+```powershell
+npm run dev:frontend
+npm run dev:backend
+npm run dev:ai
+```
+
 ## Problem
 
 Footwear shoppers often struggle to find products that match their visual preferences. Retailers also need ways to turn catalog and customer data into useful merchandising and business decisions. HEXSHOES aims to connect product discovery with evidence-based retail intelligence.
