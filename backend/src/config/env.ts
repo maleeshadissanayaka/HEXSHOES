@@ -35,6 +35,17 @@ const parseProductDataSource = (value: string | undefined): ProductDataSource =>
   throw new Error('PRODUCT_DATA_SOURCE must be either "fixture" or "firestore"');
 };
 
+const parsePositiveInteger = (value: string | undefined, fallback: number, name: string): number => {
+  const parsed = Number(value ?? fallback);
+  if (!Number.isInteger(parsed) || parsed < 1) throw new Error(`${name} must be a positive integer`);
+  return parsed;
+};
+
+const parseUrl = (value: string | undefined, fallback: string, name: string): string => {
+  try { return new URL(value ?? fallback).origin; }
+  catch { throw new Error(`${name} must be a valid URL`); }
+};
+
 export const env = Object.freeze({
   port: parsePort(process.env.PORT),
   nodeEnv: parseNodeEnvironment(process.env.NODE_ENV),
@@ -48,6 +59,11 @@ export const env = Object.freeze({
     process.env.VITEST === "true"
       ? "fixture"
       : parseProductDataSource(process.env.PRODUCT_DATA_SOURCE),
+  aiService: Object.freeze({
+    baseUrl: parseUrl(process.env.AI_SERVICE_BASE_URL, "http://127.0.0.1:8000", "AI_SERVICE_BASE_URL"),
+    timeoutMs: parsePositiveInteger(process.env.AI_SERVICE_TIMEOUT_MS, 120_000, "AI_SERVICE_TIMEOUT_MS"),
+    maxImageBytes: parsePositiveInteger(process.env.VISUAL_SEARCH_MAX_IMAGE_BYTES, 5 * 1024 * 1024, "VISUAL_SEARCH_MAX_IMAGE_BYTES"),
+  }),
   firebase: Object.freeze({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,

@@ -61,3 +61,15 @@ export function apiGet(
 ): Promise<unknown> {
   return apiRequest(path, { signal, headers });
 }
+
+export async function apiFormRequest(path: string, form: FormData, signal?: AbortSignal): Promise<unknown> {
+  let response: Response;
+  try { response = await fetch(`${apiConfig.baseUrl}${path}`, { method: "POST", headers: { Accept: "application/json" }, body: form, signal }); }
+  catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    throw new ApiError("Visual search is temporarily unavailable.", undefined, { cause: error });
+  }
+  if (!response.ok) throw new ApiError(response.status === 503 ? "Visual search is temporarily unavailable." : "The selected image could not be searched.", response.status);
+  try { return await response.json(); }
+  catch (error) { throw new ApiError("The API returned invalid JSON.", response.status, { cause: error }); }
+}

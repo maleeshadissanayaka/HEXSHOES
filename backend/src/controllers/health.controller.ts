@@ -14,7 +14,7 @@ export const getStatus: RequestHandler = (_request, response) => {
     success: true,
     data: {
       backend: "READY", database: databaseStatus, authentication: "READY",
-      aiService: "NOT_CONNECTED", commerce: "FOUNDATION",
+      aiService: { configured: true }, commerce: "FOUNDATION",
     },
   });
 };

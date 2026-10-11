@@ -73,7 +73,7 @@ The cart keeps the existing in-memory behavior for signed-out visitors. Signed-i
 | `/men`, `/women`                    | Distinct campaign collections with filters and four presentation studies       |
 | `/new-drops`                        | Editorial grid of the four current presentation studies                          |
 | `/product/:id`                      | Product concept detail, gallery, presentation size/quantity, and visit-only bag; unknown IDs show 404 |
-| `/visual-search`                    | Sample-image selection, local upload preview, and an interactive planned-pipeline explanation; no CLIP inference |
+| `/visual-search`                    | Real image/text OpenCLIP retrieval with local preview and ranked canonical catalog matches |
 | `/wishlist`, `/cart`               | Account-persistent saved styles and cart, each with an in-memory guest fallback; no checkout |
 | `/account`                         | Firebase account access, persisted profile, and backend-verified session state |
 | `/about`                           | Brand manifesto and cinematic movement story |
@@ -117,7 +117,7 @@ Archivo handles branding and headings; Space Grotesk handles body/UI; JetBrains 
 
 Reusable components include AnnouncementBar, Navbar, MobileMenu, Footer, PageContainer, SectionHeader, Button, IconButton, SkipLink, PageShell (used by 404), Reveal, ProductCard, QuickView, PremiumModal, CampaignMedia, PresentationImage, VisualSearchConsole, IntelligenceStory, and HexAssistant. ExperienceProvider coordinates dialogs, visit-local cart state, guest saved styles, and authenticated wishlist synchronization; the modal lifecycle handles focus and scroll locking.
 
-The homepage presents the hero, brand value strip, HEX philosophy, category directions, new drops preview, planned visual search, future intelligence roadmap, story, and newsletter, between the global announcement and footer.
+The homepage presents the hero, brand value strip, HEX philosophy, category directions, new drops preview, real visual search, future intelligence roadmap, story, and newsletter, between the global announcement and footer.
 
 ## Presentation boundaries
 
@@ -125,7 +125,7 @@ The homepage presents the hero, brand value strip, HEX philosophy, category dire
 
 The storefront uses seven generated photographic concept compositions, isolated in `public/media/presentation/` and `src/data/presentationMedia.ts`. These are presentation assets, not photographs of manufactured stock. Each has three compressed WebP variants; the browser selects an appropriate responsive source. Lead campaign images load eagerly with high priority; other images use lazy loading and asynchronous decoding. Explicit dimensions reserve layout space. The homepage hero uses a still image with restrained CSS motion and a motion toggle; there is no campaign video. No additional runtime packages are required.
 
-The search utility opens an accessible explanatory dialog. Visual discovery lets visitors switch local samples or preview a selected image in the browser, then inspect pipeline explanations. Its style thumbnails remain fixed presentation examples: uploads are not sent, and retrieval, similarity scores, and simulated processing are not active. Intelligence modules use current-foundation, planned, and research status labels. The roadmap supports pointer selection, arrow keys, Home, and End.
+The search utility opens an accessible explanatory dialog. Visual discovery lets visitors choose repository samples or preview, replace, and remove a JPEG, PNG, or WebP image locally before explicitly searching. The browser sends the query to Express, never directly to FastAPI. Results are canonical products ranked by real OpenCLIP cosine similarity and link to existing product pages. A modest text field searches the same catalog-image index. Displayed similarity values are cosine similarity scores, not percentages, probabilities, or confidence estimates. The interface provides searching, success, empty, and controlled error states; query images are not persisted.
 
 HEX Assistant uses deterministic local replies and suggested prompts. It sends no requests, stores no conversations, and clears when dismissed. It is explicitly identified as a scripted product guide. Guest product sizes, quantities, bag items, and saved styles are local presentation interactions held in memory for the visit and clear on reload; authenticated saved styles and cart lines persist through the protected backend. The contact form validates required fields and email, then displays a local preview confirmation. Newsletter submission validates email, displays a local confirmation, and clears the input. Neither form sends or stores data.
 
@@ -167,6 +167,6 @@ Earlier phase review artifacts remain in their respective verification folders. 
 
 ## Current status and next work
 
-The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, persistent authenticated cart, persistent authenticated saved styles, authenticated account profiles, visual discovery, brand, technology, and contact pages. Guest saved styles and bag state live in memory for the current visit; checkout, payments, inventory, and CLIP inference are not connected.
+The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, persistent authenticated cart, persistent authenticated saved styles, authenticated account profiles, OpenCLIP visual discovery, brand, technology, and contact pages. Guest saved styles and bag state live in memory for the current visit; checkout, payments, and inventory are not connected.
 
-Remaining work belongs to separately scoped integrations: connect a verified catalog and commerce services, add licensed retail photography, implement authentication and checkout, and connect/evaluate real visual retrieval. Cross-browser Safari/Firefox and hands-on assistive-technology testing are also still recommended.
+Remaining work belongs to separately scoped integrations: connect commerce services, add licensed retail photography, implement checkout, and evaluate visual retrieval with held-out query images. Cross-browser Safari/Firefox and hands-on assistive-technology testing are also still recommended.

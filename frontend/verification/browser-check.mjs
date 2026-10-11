@@ -285,8 +285,8 @@ try {
       visualSearchCopy.heading.replace(/\s+/g, " ").trim(),
       "FIND YOUR NEXT PAIR WITH AI.",
     );
-    assert(visualSearchCopy.label.toLowerCase().includes("ai foundation"));
-    assert(visualSearchCopy.disclosure.includes("not connected"));
+    assert(visualSearchCopy.label.toLowerCase().includes("openclip live"));
+    assert(visualSearchCopy.disclosure.includes("ranked product IDs"));
     assert(!visualSearchCopy.label.toLowerCase().includes("powered by"));
     checks.push({
       name: "Homepage Visual Search status is clear and accurate",
@@ -825,11 +825,11 @@ try {
     await pause(150);
     assert(
       await client.evaluate(
-        `document.querySelector('.discovery-console__image img').src.includes('trail') && document.querySelector('.discovery-console__explanation').textContent.includes('similarity') && document.querySelectorAll('.discovery-console__results li').length === 3`,
+        `document.querySelector('.discovery-console__image img').src.includes('trail') && document.querySelector('.discovery-console__explanation').textContent.includes('similarity') && document.querySelectorAll('.discovery-console__results li').length === 0`,
       ),
     );
     checks.push({
-      name: "Visual search samples and pipeline explanations without simulated results",
+      name: "Visual search samples change locally without simulated results",
       passed: true,
     });
     await client.send("DOM.enable");
@@ -854,17 +854,58 @@ try {
       selector: ".discovery-console__upload input[type=file]",
     });
     await client.send("DOM.setFileInputFiles", {
-      files: [path.join(root, "public", "media", "presentation", "runner-320.webp")],
+      files: [path.join(root, "public", "media", "presentation", "runner-960.webp")],
       nodeId: fileInput.nodeId,
     });
     await pause(150);
     assert(
       await client.evaluate(
-        `document.querySelector('.discovery-console__image img').src.startsWith('blob:') && document.querySelector('.discovery-console__drop [role="status"]').textContent.includes('No upload or image analysis') && !document.querySelector('.discovery-console__results').textContent.includes('%')`,
+        `document.querySelector('.discovery-console__image img').src.startsWith('blob:') && document.querySelector('.discovery-console__drop [role="status"]').textContent.includes('not been uploaded') && document.querySelectorAll('.discovery-console__results li').length === 0`,
       ),
     );
+    await client.evaluate(`document.querySelector('.discovery-console__actions .button').click()`);
+    for (let attempt = 0; attempt < 240; attempt++) {
+      if (await client.evaluate(`document.querySelectorAll('.discovery-console__results li').length === 4`)) break;
+      await pause(250);
+    }
+    assert(
+      await client.evaluate(
+        `document.querySelector('.discovery-console__results li:first-child a').getAttribute('href') === '/product/hx-01' && document.querySelector('.discovery-console__results li:first-child strong').textContent === 'Similarity 1.000' && !document.querySelector('.discovery-console__results').textContent.includes('%') && !document.querySelector('.discovery-console__results').textContent.toLowerCase().includes('confidence')`,
+      ),
+    );
+    documentNode = await client.send("DOM.getDocument", { depth: -1 });
+    fileInput = await client.send("DOM.querySelector", {
+      nodeId: documentNode.root.nodeId,
+      selector: ".discovery-console__upload input[type=file]",
+    });
+    await client.send("DOM.setFileInputFiles", {
+      files: [path.join(root, "public", "media", "presentation", "trail-960.webp")],
+      nodeId: fileInput.nodeId,
+    });
+    await client.evaluate(`document.querySelector('.discovery-console__actions .button').click()`);
+    for (let attempt = 0; attempt < 240; attempt++) {
+      if (await client.evaluate(`document.querySelectorAll('.discovery-console__results li').length === 4`)) break;
+      await pause(250);
+    }
+    assert.equal(
+      await client.evaluate(`document.querySelector('.discovery-console__results li:first-child a').getAttribute('href')`),
+      "/product/hx-02",
+    );
+    await client.evaluate(
+      `(() => { const input = document.querySelector('.discovery-console__text-search input'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'slide sandal'); input.dispatchEvent(new Event('input', { bubbles: true })); })()`,
+    );
+    await pause(100);
+    await client.evaluate(`document.querySelector('.discovery-console__text-search form, .discovery-console__text-search').requestSubmit()`);
+    for (let attempt = 0; attempt < 240; attempt++) {
+      if (await client.evaluate(`document.querySelector('.discovery-console__results li:first-child a')?.getAttribute('href') === '/product/hx-03'`)) break;
+      await pause(250);
+    }
+    assert.equal(
+      await client.evaluate(`document.querySelector('.discovery-console__results li:first-child a').getAttribute('href')`),
+      "/product/hx-03",
+    );
     checks.push({
-      name: "Visual Search rejects non-image files and previews local images without retrieval",
+      name: "Visual Search rejects invalid files and renders real ranked image and text retrieval",
       passed: true,
     });
 
@@ -1119,7 +1160,11 @@ try {
     0,
     `Network requests failed: ${JSON.stringify(networkErrors)}`,
   );
-  assert.equal(mutationRequests.length, 0, "Unexpected data submission");
+  const unexpectedMutationRequests = mutationRequests.filter((request) => {
+    const url = new URL(request.url);
+    return request.method !== "POST" || !["/api/visual-search", "/api/visual-search/text"].includes(url.pathname);
+  });
+  assert.equal(unexpectedMutationRequests.length, 0, "Unexpected data submission");
   await writeFile(
     path.join(output, "browser-report.json"),
     JSON.stringify(

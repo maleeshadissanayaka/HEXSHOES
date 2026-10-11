@@ -18,7 +18,7 @@ export function VisualSearchIntro() {
           <div className="visual-search__copy">
             <p className="eyebrow">
               <span className="signal-dot" />
-              Visual discovery / AI foundation
+              Visual discovery / OpenCLIP live
             </p>
             <h2>
               Find your next
@@ -27,14 +27,14 @@ export function VisualSearchIntro() {
             </h2>
             <p>Some things catch your eye before you know what to call them.</p>
             <p>
-              The panel previews sample images and local uploads. Image
-              encoding and catalog retrieval with CLIP and cosine similarity
-              are planned, but are not connected.
+              Search the canonical catalog with a sample or local image.
+              Express forwards it to OpenCLIP and resolves ranked product IDs
+              into trusted catalog data.
             </p>
             <Button to="/visual-search" variant="primary">
               Discover visual search
             </Button>
-            <p className="visual-search__status eyebrow">AI foundation</p>
+            <p className="visual-search__status eyebrow">OpenCLIP connected</p>
           </div>
         </Reveal>
         <Reveal stagger={1}>

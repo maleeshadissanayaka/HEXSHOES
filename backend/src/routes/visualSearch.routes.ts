@@ -1,0 +1,17 @@
+import { Router } from "express";
+import multer from "multer";
+import { env } from "../config/env.js";
+import { searchImage, searchText } from "../controllers/visualSearch.controller.js";
+
+const allowed = new Set(["image/jpeg", "image/png", "image/webp"]);
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: env.aiService.maxImageBytes, files: 1 }, fileFilter: (_request, file, callback) => {
+  if (allowed.has(file.mimetype)) callback(null, true);
+  else callback(new Error("INVALID_IMAGE_TYPE"));
+} });
+export const visualSearchRouter = Router();
+visualSearchRouter.post("/", (request, response, next) => upload.single("image")(request, response, (error) => {
+  if (!error) { next(); return; }
+  const message = error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE" ? "Image exceeds the 5 MB limit" : error instanceof multer.MulterError && error.code === "LIMIT_UNEXPECTED_FILE" ? "Exactly one image file is required" : "Only JPEG, PNG, and WebP images are supported";
+  response.status(400).json({ success: false, error: { message } });
+}), searchImage);
+visualSearchRouter.post("/text", searchText);

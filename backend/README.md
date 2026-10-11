@@ -1,6 +1,6 @@
 # HEXSHOES Backend
 
-The HEXSHOES backend provides a typed, testable HTTP API with a repository boundary for the Firestore `products` collection and server-side Firebase ID-token verification. Payments and the Python AI service are not connected.
+The HEXSHOES backend provides a typed, testable HTTP API with a repository boundary for the Firestore `products` collection, server-side Firebase ID-token verification, and an internal bridge to the Python AI service for visual retrieval. Payments are not connected.
 
 ## Stack and structure
 
@@ -50,6 +50,8 @@ These variables are server-side only. Escaped newlines in the private key are no
 - `GET /api/profile` and `PATCH /api/profile` (authenticated profile read/update)
 - `GET /api/wishlist`, `POST /api/wishlist/:productId`, and `DELETE /api/wishlist/:productId`
 - `GET /api/cart`, `POST /api/cart/:productId`, `PATCH /api/cart/:productId`, `DELETE /api/cart/:productId`, and `DELETE /api/cart` (authenticated)
+- `POST /api/visual-search` (multipart image and optional `topK`)
+- `POST /api/visual-search/text` (`query` and optional `topK`)
 
 Success responses use `{ "success": true, "data": ... }`; errors use `{ "success": false, "error": { "message": "..." } }`.
 
@@ -70,6 +72,12 @@ Authenticated saved styles use `users/{uid}/wishlist/{productId}` with canonical
 Authenticated carts use `users/{uid}/cart/{productId}`. Each document stores `productId`, integer `quantity`, canonical server-managed `addedAt` and `updatedAt` timestamps, and the selected presentation `size` when supplied. Products are validated against the product repository. Quantities must be integers from 1 through 10; duplicate adds increment atomically and cap at 10. Cart responses resolve the current canonical product, so price and product data are never accepted from or persisted from the client. Every cart operation derives ownership exclusively from the verified token UID.
 
 Firebase Admin bypasses Firestore client security rules. Server security therefore depends on ID-token verification, server-owned UID selection, strict input validation, and the repository/service boundary. Firestore rules are not weakened for this integration.
+
+## OpenCLIP visual-search integration
+
+The browser sends visual-search requests only to Express. Express forwards validated queries to the internal FastAPI service configured by `AI_SERVICE_BASE_URL` (default `http://127.0.0.1:8000`) with `AI_SERVICE_TIMEOUT_MS` defaulting to 120 seconds for CPU inference. Image uploads remain in memory, are limited by `VISUAL_SEARCH_MAX_IMAGE_BYTES` (5 MiB by default), and accept only JPEG, PNG, or WebP. Uploaded bytes are neither persisted nor logged.
+
+FastAPI returns only ranked product IDs and cosine similarity scores. Express validates ranks, finite scores, uniqueness, and requested result count, then resolves every known ID through the canonical product repository. Unknown IDs are skipped rather than fabricated. Offline, timed-out, unavailable-index, and malformed-response cases return the controlled `503 Visual search service is temporarily unavailable` contract without Python errors, internal URLs, or tracebacks. `/api/status` reports only that the integration is configured; it does not claim a live health check.
 
 ## Firestore collection and seeding
 

@@ -108,10 +108,8 @@ export function VisualSearchPage() {
               </h1>
               <p>When words fall short, start with a different perspective.</p>
               <p className="muted">
-                Explore the interface through sample images and the planned
-                retrieval pipeline. Future image search will connect visual
-                inspiration to the catalog using CLIP embeddings and cosine
-                similarity.
+                Search the catalog with an image or a short description. Real
+                OpenCLIP embeddings rank canonical products by cosine similarity.
               </p>
               <a href="#discovery-details" className="text-link">
                 Behind the discovery <Icon name="arrow" size={18} />
@@ -136,24 +134,24 @@ export function VisualSearchPage() {
               <span className="eyebrow">01 / Bring inspiration</span>
               <h3>Start with an image.</h3>
               <p>
-                A silhouette. A texture. A shape that stays with you. A future
-                upload flow will turn an image into a starting point.
+                A silhouette. A texture. A shape that stays with you. Preview
+                an image locally, then choose when to search.
               </p>
             </article>
             <article>
               <span className="eyebrow">02 / Find a connection</span>
               <h3>Discover through detail.</h3>
               <p>
-                OpenCLIP and PyTorch will encode images. Cosine similarity will
-                compare embeddings across a verified catalog.
+                OpenCLIP and PyTorch encode images and text. Cosine similarity
+                compares normalized embeddings across the catalog.
               </p>
             </article>
             <article>
               <span className="eyebrow">03 / Keep it transparent</span>
               <h3>A considered result.</h3>
               <p>
-                The current panel uses fixed presentation samples. No retrieval,
-                ranking scores, or image analysis runs yet.
+                Results are real ranked catalog products. Similarity scores are
+                cosine values, not probabilities or confidence estimates.
               </p>
             </article>
           </div>

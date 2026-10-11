@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   ensureProfile: vi.fn(), getProfile: vi.fn(), updateDisplayName: vi.fn(),
   listWishlist: vi.fn(), addWishlist: vi.fn(), removeWishlist: vi.fn(),
   listCart: vi.fn(), addCart: vi.fn(), updateCart: vi.fn(), removeCart: vi.fn(), clearCart: vi.fn(),
+  searchImage: vi.fn(), searchText: vi.fn(),
 }));
 vi.mock("../src/services/tokenVerifier.js", () => ({
   verifyFirebaseIdToken: mocks.verifyFirebaseIdToken,
@@ -20,7 +21,11 @@ vi.mock("../src/services/wishlist.service.js", () => ({ wishlistService: {
 vi.mock("../src/services/cart.service.js", () => ({ cartService: {
   list: mocks.listCart, add: mocks.addCart, update: mocks.updateCart, remove: mocks.removeCart, clear: mocks.clearCart,
 } }));
+vi.mock("../src/services/visualSearch.service.js", () => ({ visualSearchService: {
+  image: mocks.searchImage, text: mocks.searchText,
+} }));
 import app from "../src/app.js";
+import { AiServiceResponseError, AiServiceUnavailableError } from "../src/services/ai.service.js";
 
 describe("HEXSHOES API", () => {
   beforeEach(() => {
@@ -40,7 +45,7 @@ describe("HEXSHOES API", () => {
     expect(response.status).toBe(200);
     expect(response.body.data).toMatchObject({
       backend: "READY", database: "FIXTURE", authentication: "READY",
-      aiService: "NOT_CONNECTED", commerce: "FOUNDATION",
+      aiService: { configured: true }, commerce: "FOUNDATION",
     });
   });
 
@@ -212,5 +217,37 @@ describe("HEXSHOES API", () => {
     expect(mocks.updateCart).toHaveBeenCalledWith("owner-a", "hx-01", { quantity: 3 });
     expect(mocks.removeCart).toHaveBeenCalledWith("owner-a", "hx-01");
     expect(mocks.clearCart).toHaveBeenCalledWith("owner-a");
+  });
+
+  it("validates visual-search image uploads", async () => {
+    expect((await request(app).post("/api/visual-search")).status).toBe(400);
+    expect((await request(app).post("/api/visual-search").attach("image", Buffer.from("text"), { filename: "query.txt", contentType: "text/plain" })).status).toBe(400);
+    expect((await request(app).post("/api/visual-search").attach("image", Buffer.alloc(5 * 1024 * 1024 + 1), { filename: "large.png", contentType: "image/png" })).status).toBe(400);
+    expect((await request(app).post("/api/visual-search").attach("image", Buffer.from("not a png"), { filename: "spoofed.png", contentType: "image/png" })).status).toBe(400);
+    expect(mocks.searchImage).not.toHaveBeenCalled();
+  });
+
+  it("forwards a valid in-memory image and returns resolved ranked results", async () => {
+    mocks.searchImage.mockResolvedValueOnce({ queryType: "image", results: [{ rank: 1, similarityScore: 0.82, product: { id: "hx-01", name: "HEX Runner" } }] });
+    const response = await request(app).post("/api/visual-search").field("topK", "1").attach("image", Buffer.from("RIFF0000WEBPimage"), { filename: "query.webp", contentType: "image/webp" });
+    expect(response.status).toBe(200);
+    expect(response.body.data.results[0]).toMatchObject({ rank: 1, similarityScore: 0.82, product: { id: "hx-01" } });
+    expect(mocks.searchImage).toHaveBeenCalledWith(expect.objectContaining({ mimeType: "image/webp", filename: "query.webp" }), 1);
+  });
+
+  it("supports text-to-product visual search", async () => {
+    mocks.searchText.mockResolvedValueOnce({ queryType: "text", results: [{ rank: 1, similarityScore: 0.3, product: { id: "hx-02" } }] });
+    const response = await request(app).post("/api/visual-search/text").send({ query: "trail shoe", topK: 4 });
+    expect(response.status).toBe(200);
+    expect(mocks.searchText).toHaveBeenCalledWith("trail shoe", 4);
+  });
+
+  it("returns controlled errors for unavailable or malformed AI responses", async () => {
+    mocks.searchImage.mockRejectedValueOnce(new AiServiceUnavailableError("internal URL"));
+    const unavailable = await request(app).post("/api/visual-search").attach("image", Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), { filename: "query.png", contentType: "image/png" });
+    expect(unavailable.status).toBe(503); expect(unavailable.text).not.toContain("internal URL");
+    mocks.searchText.mockRejectedValueOnce(new AiServiceResponseError("Python detail"));
+    const malformed = await request(app).post("/api/visual-search/text").send({ query: "shoe" });
+    expect(malformed.status).toBe(503); expect(malformed.text).not.toContain("Python detail");
   });
 });
