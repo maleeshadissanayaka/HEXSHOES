@@ -49,6 +49,7 @@ These variables are server-side only. Escaped newlines in the private key are no
 - `GET /api/me` (requires a valid Firebase ID token)
 - `GET /api/profile` and `PATCH /api/profile` (authenticated profile read/update)
 - `GET /api/wishlist`, `POST /api/wishlist/:productId`, and `DELETE /api/wishlist/:productId`
+- `GET /api/cart`, `POST /api/cart/:productId`, `PATCH /api/cart/:productId`, `DELETE /api/cart/:productId`, and `DELETE /api/cart` (authenticated)
 
 Success responses use `{ "success": true, "data": ... }`; errors use `{ "success": false, "error": { "message": "..." } }`.
 
@@ -66,6 +67,8 @@ Missing or malformed authorization returns `401 Authentication required`. Invali
 
 Authenticated saved styles use `users/{uid}/wishlist/{productId}` with canonical server timestamps and product IDs only. Wishlist product IDs are validated against the product repository, duplicate adds are idempotent, and list responses resolve current product objects. Every profile and wishlist operation derives `uid` exclusively from the verified token; no route accepts a client-selected user ID.
 
+Authenticated carts use `users/{uid}/cart/{productId}`. Each document stores `productId`, integer `quantity`, canonical server-managed `addedAt` and `updatedAt` timestamps, and the selected presentation `size` when supplied. Products are validated against the product repository. Quantities must be integers from 1 through 10; duplicate adds increment atomically and cap at 10. Cart responses resolve the current canonical product, so price and product data are never accepted from or persisted from the client. Every cart operation derives ownership exclusively from the verified token UID.
+
 Firebase Admin bypasses Firestore client security rules. Server security therefore depends on ID-token verification, server-owned UID selection, strict input validation, and the repository/service boundary. Firestore rules are not weakened for this integration.
 
 ## Firestore collection and seeding
@@ -80,4 +83,4 @@ Do not commit `.env`, service-account JSON, private keys, or credentials. Never 
 
 The local products remain presentation fixtures and also serve as the deterministic Firestore seed source. They are not inventory, availability, sales, demand, review, or recommendation data.
 
-Firebase Admin supports Firestore access, Firebase ID-token verification, user profiles, and saved styles, but a live project requires server credentials. Persistent cart, expanded profile preferences, FastAPI, PyTorch/OpenCLIP, recommendations, analytics, commerce workflows, and payments are not implemented.
+Firebase Admin supports Firestore access, Firebase ID-token verification, user profiles, saved styles, and authenticated carts, but a live project requires server credentials. Expanded profile preferences, FastAPI, PyTorch/OpenCLIP, recommendations, analytics, checkout, inventory, commerce workflows, and payments are not implemented.

@@ -12,14 +12,35 @@ import type { CartLine } from "../../types/product";
 import { useAuth } from "../../auth/useAuth";
 import { mergeWishlistIds, toggleWishlistId } from "../../auth/wishlistState";
 import { addWishlistProduct, getWishlist, removeWishlistProduct } from "../../services/api/wishlist.api";
+import { addCartItem as addAccountCartItem, getCart, removeCartItem as removeAccountCartItem, updateCartItem as updateAccountCartItem } from "../../services/api/cart.api";
+import { addLocalCartLine, mergeCartLines, removeLocalCartLine, updateLocalCartLine } from "../../auth/cartState";
 
 export function ExperienceProvider({ children }: { children: ReactNode }) {
   const [dialog, setDialog] = useState<ExperienceDialog | null>(null);
-  const [cart, setCart] = useState<CartLine[]>([]);
+  const [guestCart, setGuestCart] = useState<CartLine[]>([]);
+  const [accountCart, setAccountCart] = useState<CartLine[]>([]);
   const [guestWishlist, setGuestWishlist] = useState<string[]>([]);
   const [accountWishlist, setAccountWishlist] = useState<string[]>([]);
   const auth = useAuth();
   const wishlist = auth.user ? accountWishlist : guestWishlist;
+  const cart = auth.user ? accountCart : guestCart;
+
+  useEffect(() => {
+    const user = auth.user;
+    if (!user) { setAccountCart([]); return; }
+    const guestSnapshot = guestCart;
+    setAccountCart(guestSnapshot);
+    const controller = new AbortController();
+    void getCart(user, controller.signal).then(async (remote) => {
+      if (!controller.signal.aborted) setAccountCart(mergeCartLines(remote, guestSnapshot));
+      for (const line of guestSnapshot) await addAccountCartItem(user, line.product.id, line.quantity, line.size);
+      const merged = await getCart(user, controller.signal);
+      if (!controller.signal.aborted) { setAccountCart(merged); setGuestCart([]); }
+    }).catch((error: unknown) => {
+      if (!(error instanceof DOMException && error.name === "AbortError")) setAccountCart(guestSnapshot);
+    });
+    return () => controller.abort();
+  }, [auth.user?.uid]);
 
   useEffect(() => {
     const user = auth.user;
@@ -64,39 +85,33 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
           ? mergeWishlistIds(current, [productId])
           : current.filter((id) => id !== productId)));
       },
-      addToCart: (product: CartLine["product"], size: string, quantity: number) =>
-        setCart((current) => {
-          const existing = current.find(
-            (item) => item.product.id === product.id && item.size === size,
-          );
-          return existing
-            ? current.map((item) =>
-                item === existing
-                  ? { ...item, quantity: item.quantity + quantity }
-                  : item,
-              )
-            : [...current, { product, size, quantity }];
-        }),
-      updateCartQuantity: (productId: string, size: string, quantity: number) =>
-        setCart((current) =>
-          current.map((item) =>
-            item.product.id === productId && item.size === size
-              ? { ...item, quantity: Math.max(1, quantity) }
-              : item,
-          ),
-        ),
-      removeCartItem: (productId: string, size: string) =>
-        setCart((current) =>
-          current.filter(
-            (item) => item.product.id !== productId || item.size !== size,
-          ),
-        ),
+      addToCart: (product: CartLine["product"], size: string, quantity: number) => {
+        if (!auth.user) { setGuestCart((current) => addLocalCartLine(current, product, size, quantity)); return; }
+        const user = auth.user;
+        const previous = accountCart;
+        setAccountCart((current) => addLocalCartLine(current, product, size, quantity));
+        void addAccountCartItem(user, product.id, quantity, size).then((line) => setAccountCart((current) => [...current.filter((item) => item.product.id !== product.id), line])).catch(() => setAccountCart(previous));
+      },
+      updateCartQuantity: (productId: string, size: string, quantity: number) => {
+        if (!auth.user) { setGuestCart((current) => updateLocalCartLine(current, productId, quantity)); return; }
+        const user = auth.user;
+        const previous = accountCart;
+        setAccountCart((current) => updateLocalCartLine(current, productId, quantity));
+        void updateAccountCartItem(user, productId, quantity, size).then((line) => setAccountCart((current) => [...current.filter((item) => item.product.id !== productId), line])).catch(() => setAccountCart(previous));
+      },
+      removeCartItem: (productId: string, _size: string) => {
+        if (!auth.user) { setGuestCart((current) => removeLocalCartLine(current, productId)); return; }
+        const user = auth.user;
+        const previous = accountCart;
+        setAccountCart((current) => removeLocalCartLine(current, productId));
+        void removeAccountCartItem(user, productId).catch(() => setAccountCart(previous));
+      },
       removeWishlistItem: (productId: string) =>
         auth.user
           ? (setAccountWishlist((current) => current.filter((id) => id !== productId)), void removeWishlistProduct(auth.user, productId).catch(() => setAccountWishlist((current) => mergeWishlistIds(current, [productId]))))
           : setGuestWishlist((current) => current.filter((id) => id !== productId)),
     }),
-    [auth.user, accountWishlist, cart, wishlist, openDialog, closeDialog],
+    [auth.user, accountCart, accountWishlist, cart, wishlist, openDialog, closeDialog],
   );
   const title =
     dialog?.kind === "quick-view"

@@ -23,6 +23,23 @@ test("authenticated mutations attach a token without storing it", async () => {
   assert.equal(options?.headers?.Authorization, "Bearer short-lived-token");
 });
 
+test("signed-in cart mutations preserve methods and typed request bodies", async () => {
+  const received: Array<{ path: string; options: Parameters<AuthenticatedRequest>[1] }> = [];
+  const request: AuthenticatedRequest = async (path, options) => { received.push({ path, options }); return { success: true }; };
+  const tokenUser = { getIdToken: async () => "cart-token" };
+  await authenticatedRequest(tokenUser, request, "/cart/hx-01", { method: "POST", body: { quantity: 2, size: "9" } });
+  await authenticatedRequest(tokenUser, request, "/cart/hx-01", { method: "PATCH", body: { quantity: 3, size: "9" } });
+  await authenticatedRequest(tokenUser, request, "/cart/hx-01", { method: "DELETE" });
+  await authenticatedRequest(tokenUser, request, "/cart", { method: "DELETE" });
+  assert.deepEqual(received.map(({ path, options }) => ({ path, method: options.method, body: options.body })), [
+    { path: "/cart/hx-01", method: "POST", body: { quantity: 2, size: "9" } },
+    { path: "/cart/hx-01", method: "PATCH", body: { quantity: 3, size: "9" } },
+    { path: "/cart/hx-01", method: "DELETE", body: undefined },
+    { path: "/cart", method: "DELETE", body: undefined },
+  ]);
+  assert.ok(received.every(({ options }) => options.headers?.Authorization === "Bearer cart-token"));
+});
+
 test("guest wishlist merge is additive and deduplicated", () => {
   assert.deepEqual(mergeWishlistIds(["hx-01", "hx-02"], ["hx-02", "hx-03"]), ["hx-01", "hx-02", "hx-03"]);
   assert.deepEqual(dedupeWishlistIds(["hx-01", "hx-01"]), ["hx-01"]);

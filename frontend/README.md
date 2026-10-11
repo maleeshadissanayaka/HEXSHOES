@@ -60,7 +60,9 @@ Current account features include email/password registration and sign-in, Google
 
 Authenticated account sessions call the protected backend `GET /api/me` route. The current Firebase user supplies a fresh ID token through the Firebase SDK, and the shared API boundary adds it only to that protected request. The application does not log, manually store, or persist ID tokens itself.
 
-Backend identity verification is active. Signed-in users read and update their persisted display name through the protected profile API. Saved styles use the protected backend wishlist API; signed-out visitors retain an in-memory guest wishlist. On sign-in, guest product IDs are deduplicated and additively merged into the account wishlist, then guest state is cleared only after a successful merge. Signing out clears the account wishlist from memory so it cannot leak into guest or another user session. Cart remains visit-local.
+Backend identity verification is active. Signed-in users read and update their persisted display name through the protected profile API. Saved styles use the protected backend wishlist API; signed-out visitors retain an in-memory guest wishlist. On sign-in, guest product IDs are deduplicated and additively merged into the account wishlist, then guest state is cleared only after a successful merge. Signing out clears the account wishlist from memory so it cannot leak into guest or another user session.
+
+The cart keeps the existing in-memory behavior for signed-out visitors. Signed-in cart reads and mutations use the protected backend API and persist in Firestore. On sign-in, guest quantities are additively merged with existing account quantities, duplicate products combine, and the maximum quantity of 10 is enforced. Guest state is cleared only after the complete merge succeeds. Signing out clears account cart memory and never copies it into the independent guest cart. Product details and prices come from the backend catalog, not client request data.
 
 ## Route overview
 
@@ -72,7 +74,7 @@ Backend identity verification is active. Signed-in users read and update their p
 | `/new-drops`                        | Editorial grid of the four current presentation studies                          |
 | `/product/:id`                      | Product concept detail, gallery, presentation size/quantity, and visit-only bag; unknown IDs show 404 |
 | `/visual-search`                    | Sample-image selection, local upload preview, and an interactive planned-pipeline explanation; no CLIP inference |
-| `/wishlist`, `/cart`               | Account-persistent saved styles (guest fallback) and visit-only bag state; no checkout |
+| `/wishlist`, `/cart`               | Account-persistent saved styles and cart, each with an in-memory guest fallback; no checkout |
 | `/account`                         | Firebase account access, persisted profile, and backend-verified session state |
 | `/about`                           | Brand manifesto and cinematic movement story |
 | `/technology`                      | Intended architecture, service boundaries, and interactive roadmap |
@@ -125,7 +127,7 @@ The storefront uses seven generated photographic concept compositions, isolated 
 
 The search utility opens an accessible explanatory dialog. Visual discovery lets visitors switch local samples or preview a selected image in the browser, then inspect pipeline explanations. Its style thumbnails remain fixed presentation examples: uploads are not sent, and retrieval, similarity scores, and simulated processing are not active. Intelligence modules use current-foundation, planned, and research status labels. The roadmap supports pointer selection, arrow keys, Home, and End.
 
-HEX Assistant uses deterministic local replies and suggested prompts. It sends no requests, stores no conversations, and clears when dismissed. It is explicitly identified as a scripted product guide. Product sizes, quantities, bag items, and saved styles are local presentation interactions held in memory for the visit and clear on reload. The contact form validates required fields and email, then displays a local preview confirmation. Newsletter submission validates email, displays a local confirmation, and clears the input. Neither form sends or stores data.
+HEX Assistant uses deterministic local replies and suggested prompts. It sends no requests, stores no conversations, and clears when dismissed. It is explicitly identified as a scripted product guide. Guest product sizes, quantities, bag items, and saved styles are local presentation interactions held in memory for the visit and clear on reload; authenticated saved styles and cart lines persist through the protected backend. The contact form validates required fields and email, then displays a local preview confirmation. Newsletter submission validates email, displays a local confirmation, and clears the input. Neither form sends or stores data.
 
 CampaignMedia currently uses the optimized hero still with a controllable slow drift. It accepts an optional local video source, with autoplay/muted/playsInline, poster fallback, playback controls, and reduced-motion fallback. No video asset or secondary product-angle photography is currently supplied.
 
@@ -165,6 +167,6 @@ Earlier phase review artifacts remain in their respective verification folders. 
 
 ## Current status and next work
 
-The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, visit-only cart, persistent authenticated saved styles, authenticated account profiles, visual discovery, brand, technology, and contact pages. Guest saved styles and bag state live in memory for the current visit; commerce and CLIP inference are not connected.
+The customer-facing routes include the homepage, filtered collections, Men/Women campaigns, New Drops, product concepts, persistent authenticated cart, persistent authenticated saved styles, authenticated account profiles, visual discovery, brand, technology, and contact pages. Guest saved styles and bag state live in memory for the current visit; checkout, payments, inventory, and CLIP inference are not connected.
 
 Remaining work belongs to separately scoped integrations: connect a verified catalog and commerce services, add licensed retail photography, implement authentication and checkout, and connect/evaluate real visual retrieval. Cross-browser Safari/Firefox and hands-on assistive-technology testing are also still recommended.

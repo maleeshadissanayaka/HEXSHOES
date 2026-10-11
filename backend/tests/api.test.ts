@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   verifyFirebaseIdToken: vi.fn(),
   ensureProfile: vi.fn(), getProfile: vi.fn(), updateDisplayName: vi.fn(),
   listWishlist: vi.fn(), addWishlist: vi.fn(), removeWishlist: vi.fn(),
+  listCart: vi.fn(), addCart: vi.fn(), updateCart: vi.fn(), removeCart: vi.fn(), clearCart: vi.fn(),
 }));
 vi.mock("../src/services/tokenVerifier.js", () => ({
   verifyFirebaseIdToken: mocks.verifyFirebaseIdToken,
@@ -15,6 +16,9 @@ vi.mock("../src/services/user.service.js", () => ({ userService: {
 } }));
 vi.mock("../src/services/wishlist.service.js", () => ({ wishlistService: {
   list: mocks.listWishlist, add: mocks.addWishlist, remove: mocks.removeWishlist,
+} }));
+vi.mock("../src/services/cart.service.js", () => ({ cartService: {
+  list: mocks.listCart, add: mocks.addCart, update: mocks.updateCart, remove: mocks.removeCart, clear: mocks.clearCart,
 } }));
 import app from "../src/app.js";
 
@@ -145,7 +149,7 @@ describe("HEXSHOES API", () => {
     expect(mocks.ensureProfile).toHaveBeenCalledWith(expect.objectContaining({ uid: "user-123" }));
   });
 
-  it.each(["/api/profile", "/api/wishlist"])("protects %s", async (path) => {
+  it.each(["/api/profile", "/api/wishlist", "/api/cart"])("protects %s", async (path) => {
     expect((await request(app).get(path)).status).toBe(401);
   });
 
@@ -180,5 +184,33 @@ describe("HEXSHOES API", () => {
     const response = await request(app).post("/api/wishlist/missing").set("Authorization", "Bearer token");
     expect(response.status).toBe(404);
     expect(response.body.error.message).toBe("Product not found");
+  });
+
+  it("uses only the token uid for cart operations", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValue({ uid: "owner-a", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.addCart.mockResolvedValueOnce({ product: { id: "hx-01" }, quantity: 2 });
+    const response = await request(app).post("/api/cart/hx-01").set("Authorization", "Bearer token").send({ uid: "owner-b", quantity: 2 });
+    expect(response.status).toBe(200);
+    expect(mocks.addCart).toHaveBeenCalledWith("owner-a", "hx-01", { uid: "owner-b", quantity: 2 });
+  });
+
+  it("maps cart validation and missing products to safe errors", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValue({ uid: "owner-a", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.addCart.mockRejectedValueOnce(new Error("INVALID_QUANTITY"));
+    expect((await request(app).post("/api/cart/hx-01").set("Authorization", "Bearer token").send({ quantity: 0 })).status).toBe(400);
+    mocks.addCart.mockRejectedValueOnce(new Error("PRODUCT_NOT_FOUND"));
+    expect((await request(app).post("/api/cart/missing").set("Authorization", "Bearer token").send({ quantity: 1 })).status).toBe(404);
+  });
+
+  it("lists, updates, removes, and clears the authenticated cart", async () => {
+    mocks.verifyFirebaseIdToken.mockResolvedValue({ uid: "owner-a", firebase: { sign_in_provider: "password" } } as unknown as DecodedIdToken);
+    mocks.listCart.mockResolvedValueOnce([]); mocks.updateCart.mockResolvedValueOnce({ quantity: 3 }); mocks.removeCart.mockResolvedValueOnce({ productId: "hx-01" }); mocks.clearCart.mockResolvedValueOnce({ cleared: true });
+    expect((await request(app).get("/api/cart").set("Authorization", "Bearer token")).status).toBe(200);
+    expect((await request(app).patch("/api/cart/hx-01").set("Authorization", "Bearer token").send({ quantity: 3 })).status).toBe(200);
+    expect((await request(app).delete("/api/cart/hx-01").set("Authorization", "Bearer token")).status).toBe(200);
+    expect((await request(app).delete("/api/cart").set("Authorization", "Bearer token")).status).toBe(200);
+    expect(mocks.updateCart).toHaveBeenCalledWith("owner-a", "hx-01", { quantity: 3 });
+    expect(mocks.removeCart).toHaveBeenCalledWith("owner-a", "hx-01");
+    expect(mocks.clearCart).toHaveBeenCalledWith("owner-a");
   });
 });

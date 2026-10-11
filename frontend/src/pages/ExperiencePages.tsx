@@ -566,9 +566,9 @@ export function EmptyCollectionPage({ kind }: { kind: "cart" | "wishlist" }) {
       <div className="route-enter cart-page">
         <PageContainer>
           <section className="cart-heading section">
-            <p className="eyebrow">SHOPPING / VISIT-ONLY BAG</p>
+            <p className="eyebrow">SHOPPING / YOUR BAG</p>
             <h1>YOUR NEXT MOVE.</h1>
-            <p>Presentation selections held in memory for this visit.</p>
+            <p>{"Your selections are ready when you are."}</p>
           </section>
           <div className="cart-layout">
             <div className="cart-lines">
@@ -620,7 +620,7 @@ export function EmptyCollectionPage({ kind }: { kind: "cart" | "wishlist" }) {
               <Link className="button button--outline" to="/shop">Continue exploring <Icon name="arrow" size={18} /></Link>
             </aside>
           </div>
-          <p className="quiet-note retail-disclaimer">This visit-only bag clears when the page is reloaded. No order is created.</p>
+          <p className="quiet-note retail-disclaimer">Signed-in bags persist securely; guest bags remain local to this visit. No order is created.</p>
         </PageContainer>
       </div>
     );

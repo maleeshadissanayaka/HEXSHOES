@@ -5,6 +5,7 @@ import { FixtureProductRepository } from "./fixtureProduct.repository.js";
 import type { ProductRepository } from "./product.repository.js";
 import { FirestoreUserRepository } from "./firestoreUser.repository.js";
 import { FirestoreWishlistRepository } from "./firestoreWishlist.repository.js";
+import { FirestoreCartRepository } from "./firestoreCart.repository.js";
 
 export type DatabaseStatus = "FIXTURE" | "FIRESTORE_CONNECTED";
 
@@ -23,3 +24,4 @@ export const productRepository = selection.repository;
 export const databaseStatus = selection.status;
 export const userRepository = new FirestoreUserRepository(getFirestoreDatabase);
 export const wishlistRepository = new FirestoreWishlistRepository(getFirestoreDatabase);
+export const cartRepository = new FirestoreCartRepository(getFirestoreDatabase);
