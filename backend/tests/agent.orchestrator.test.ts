@@ -20,6 +20,20 @@ describe("agent orchestration", () => {
     expect((await agent.message("recommend for me", {}, user)).products?.[0]?.id).toBe("hx-04");
     expect(vi.mocked(tools.search)).toHaveBeenCalled();
   });
+  it("uses grounded attribute search instead of personalization for an explicit product modifier", async () => {
+    const { agent, tools } = setup();
+    const response = await agent.message("Recommend me a shoe similar to HEX Runner but better for trails", {}, user);
+    expect(response).toMatchObject({ intent: "SIMILAR_PRODUCTS", products: [{ id: "hx-02", name: "HEX Trail" }] });
+    expect(tools.search).toHaveBeenCalledWith("trails shoe");
+    expect(tools.personalized).not.toHaveBeenCalled();
+    expect(response.reply).not.toContain("saved styles");
+  });
+  it("keeps generic recommendations on saved and cart personalization", async () => {
+    const { agent, tools } = setup();
+    const response = await agent.message("recommend something for me", {}, user);
+    expect(response.reply).toBe("Based only on your saved styles and cart signals.");
+    expect(tools.personalized).toHaveBeenCalledWith("owner");
+  });
   it("handles auth, reads, context, and pending mutations without executing", async () => {
     const { agent, execute } = setup();
     expect((await agent.message("show my wishlist", {}, undefined)).authRequired).toBe(true);

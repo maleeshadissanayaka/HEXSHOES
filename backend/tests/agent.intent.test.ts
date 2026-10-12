@@ -35,4 +35,15 @@ describe("agent intent parsing", () => {
     expect(parseAgentIntent("Add HEX Runner quantity 2 to my cart")).toMatchObject({ intent: "CART_ADD", quantity: 2 });
     expect(parseAgentIntent("Remove HEX Runner from my cart")).toMatchObject({ intent: "CART_REMOVE" });
   });
+  it.each([
+    ["Recommend me a shoe similar to HEX Runner but better for trails", "trails"],
+    ["Something similar to HEX Runner for hiking", "hiking"],
+    ["A version of HEX Runner more suitable for trail use", "trail use"],
+    ["Similar to HEX Mono but for running", "running"],
+  ])("prioritizes explicit product discovery over personalization: %s", (message, targetUseCase) => {
+    expect(parseAgentIntent(message)).toMatchObject({ intent: "SIMILAR_PRODUCTS", targetUseCase });
+  });
+  it("keeps generic recommendations personalized", () => {
+    expect(parseAgentIntent("recommend something for me")).toMatchObject({ intent: "PERSONALIZED_RECOMMENDATION" });
+  });
 });

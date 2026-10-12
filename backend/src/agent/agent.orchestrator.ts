@@ -36,7 +36,17 @@ export class AgentOrchestrator {
       const pair = products.slice(0, 2); const difference = Math.abs(pair[0]!.price - pair[1]!.price); const cheaper = pair[0]!.price === pair[1]!.price ? undefined : pair[0]!.price < pair[1]!.price ? pair[0]! : pair[1]!;
       return this.response(cheaper ? `${cheaper.name} is $${difference.toFixed(0)} less than ${pair.find(({ id }) => id !== cheaper.id)!.name}.` : "The two products have the same illustrative price.", parsed.intent, pair, { comparison: { products: pair, priceDifference: difference, ...(cheaper ? { cheaperProductId: cheaper.id } : {}) } });
     }
-    if (parsed.intent === "SIMILAR_PRODUCTS") { const source = (await this.resolve(parsed.productTerms, context))[0]; if (!source) return this.response("Name a catalog product or open its product page so I can find similar styles.", parsed.intent); const results = await this.tools.similar(source.id); const products = results.map(({ product }) => product); return this.response(`These styles are visually related to ${source.name} using the real CLIP catalog index.`, parsed.intent, products); }
+    if (parsed.intent === "SIMILAR_PRODUCTS") {
+      const source = (await this.resolve(parsed.productTerms, context))[0];
+      if (!source) return this.response("Name a catalog product or open its product page so I can find similar styles.", parsed.intent);
+      if (parsed.targetUseCase) {
+        const products = (await this.tools.search(`${parsed.targetUseCase} shoe`)).filter(({ id }) => id !== source.id).slice(0, 4);
+        return this.response(products.length ? `${products[0]!.name} is the closest grounded catalog match for ${parsed.targetUseCase}, relative to ${source.name}.` : `No other catalog products match ${parsed.targetUseCase}.`, parsed.intent, products);
+      }
+      const results = await this.tools.similar(source.id);
+      const products = results.map(({ product }) => product);
+      return this.response(`These styles are visually related to ${source.name} using the real CLIP catalog index.`, parsed.intent, products);
+    }
     if (parsed.intent === "PERSONALIZED_RECOMMENDATION") { if (!user) { const products = (await this.tools.catalog()).slice(0, 3); return this.response("Sign in for wishlist and cart personalization. Here is honest catalog discovery instead.", parsed.intent, products, { authRequired: true }); } const result = await this.tools.personalized(user.uid); const products = result.results.map(({ product }) => product); return this.response(result.personalized ? "Based only on your saved styles and cart signals." : "You have no wishlist or cart history yet, so these are catalog selections—not personalized recommendations.", parsed.intent, products); }
     if (parsed.intent === "ACCOUNT_STATUS") { if (!user) return this.response("You are not signed in.", parsed.intent, [], { authRequired: true }); const profile = await this.tools.profile(user); return this.response(`You are signed in${profile.displayName ? ` as ${profile.displayName}` : ""}.`, parsed.intent); }
     if (parsed.intent === "WISHLIST_VIEW") { if (!user) return this.auth(parsed.intent); const products = await this.tools.wishlist(user.uid); return this.response(products.length ? `Your wishlist contains ${products.length} ${products.length === 1 ? "style" : "styles"}.` : "Your wishlist is empty.", parsed.intent, products, { wishlistSummary: { products } }); }
