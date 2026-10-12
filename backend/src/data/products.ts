@@ -1,7 +1,7 @@
 import type { Product } from "../types/product.js";
 
-/** Temporary presentation fixtures only; not live inventory or commerce data.
- * TODO: Replace fixture data with a Firestore repository/service.
+/** Presentation fixtures used by local/test fallback and Firestore seeding.
+ * These are canonical catalog content, not live inventory or commerce data.
  */
 export const products: readonly Product[] = [
   {
