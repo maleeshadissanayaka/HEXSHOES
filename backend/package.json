@@ -10,7 +10,7 @@
     "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
-    "lint": "oxlint --deny-warnings src tests scripts",
+    "lint": "oxlint --deny-warnings api src tests scripts",
     "test": "vitest run tests",
     "test:watch": "vitest",
     "seed:products": "tsx scripts/seedProducts.ts"
