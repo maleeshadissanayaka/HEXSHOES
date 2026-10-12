@@ -1,11 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 fastapi==0.119.0
 uvicorn[standard]==0.37.0
 pydantic==2.12.3
 python-dotenv==1.1.1
 pillow>=11.3,<13
 numpy>=2.2,<3
-torch>=2.7,<2.11
-torchvision>=0.22,<0.26
+torch==2.10.0+cpu
+torchvision==0.25.0+cpu
 open_clip_torch==3.2.0
 huggingface-hub==0.35.3
 python-multipart==0.0.20
