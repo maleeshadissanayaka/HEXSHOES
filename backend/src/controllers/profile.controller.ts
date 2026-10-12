@@ -1,8 +1,8 @@
-import type { RequestHandler } from "express";
 import { userService } from "../services/user.service.js";
+import type { AuthenticatedRequest } from "../types/request.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const requireUser = (request: Parameters<RequestHandler>[0]) => request.authUser;
+const requireUser = (request: AuthenticatedRequest) => request.authUser;
 
 export const getProfile = asyncHandler(async (request, response) => {
   const user = requireUser(request);

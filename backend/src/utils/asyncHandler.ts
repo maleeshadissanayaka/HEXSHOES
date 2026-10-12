@@ -1,8 +1,9 @@
-import type { NextFunction, Request, RequestHandler, Response } from "express";
+import type { NextFunction, RequestHandler, Response } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
+import type { AuthenticatedRequest } from "../types/request.js";
 
 type AsyncRequestHandler<P extends ParamsDictionary> = (
-  request: Request<P>,
+  request: AuthenticatedRequest<P>,
   response: Response,
   next: NextFunction,
 ) => Promise<unknown>;

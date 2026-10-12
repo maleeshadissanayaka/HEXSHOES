@@ -1,8 +1,13 @@
-import type { RequestHandler } from "express";
+import type { NextFunction, RequestHandler, Response } from "express";
+import type { AuthenticatedRequest } from "../types/request.js";
 import { authenticatedUserFromClaims } from "./authenticate.js";
 import { verifyFirebaseIdToken } from "../services/tokenVerifier.js";
 const bearer = /^Bearer ([^\s]+)$/;
-export const optionalAuthenticate: RequestHandler = async (request, response, next) => {
+export const optionalAuthenticate: RequestHandler = async (
+  request: AuthenticatedRequest,
+  response: Response,
+  next: NextFunction,
+) => {
   const authorization = request.get("authorization");
   if (!authorization) { next(); return; }
   const token = bearer.exec(authorization)?.[1];

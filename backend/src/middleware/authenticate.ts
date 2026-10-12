@@ -1,7 +1,8 @@
-import type { RequestHandler } from "express";
+import type { NextFunction, RequestHandler, Response } from "express";
 import type { DecodedIdToken } from "firebase-admin/auth";
 import { verifyFirebaseIdToken } from "../services/tokenVerifier.js";
 import type { AuthenticatedUser } from "../types/auth.js";
+import type { AuthenticatedRequest } from "../types/request.js";
 
 const bearerPattern = /^Bearer ([^\s]+)$/;
 const optionalString = (value: unknown): string | undefined =>
@@ -21,7 +22,11 @@ export function authenticatedUserFromClaims(claims: DecodedIdToken): Authenticat
   return user;
 }
 
-export const authenticate: RequestHandler = async (request, response, next) => {
+export const authenticate: RequestHandler = async (
+  request: AuthenticatedRequest,
+  response: Response,
+  next: NextFunction,
+) => {
   const authorization = request.get("authorization");
   if (!authorization) {
     response.status(401).json({ success: false, error: { message: "Authentication required" } });

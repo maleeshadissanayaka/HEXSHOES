@@ -1,7 +1,8 @@
 import { cartService } from "../services/cart.service.js";
+import type { AuthenticatedRequest } from "../types/request.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const uid = (request: { authUser?: { uid: string } }, response: { status: (code: number) => { json: (body: unknown) => void } }) => {
+const uid = (request: AuthenticatedRequest, response: { status: (code: number) => { json: (body: unknown) => void } }) => {
   if (request.authUser) return request.authUser.uid;
   response.status(401).json({ success: false, error: { message: "Authentication required" } });
   return undefined;
