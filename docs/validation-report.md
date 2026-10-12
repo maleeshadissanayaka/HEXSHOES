@@ -1,26 +1,50 @@
 # Validation report
 
-Date: 2026-10-12. Scope: local portfolio/demo readiness; no deployment or production benchmark.
+Date: 2026-10-13. Scope: final deployed portfolio validation, not an SLA, certification, load test, or production ML benchmark.
+
+## Automated validation
+
+| Area | Result |
+| --- | --- |
+| Frontend | Lint, typecheck, build, and 25 tests passed |
+| Backend | Lint, typecheck, build, and 103 tests passed across 8 files |
+| AI service | 26 safe tests passed; 2 real-model integration tests intentionally deselected by the default suite |
+| AI runtime | Python 3.12.10; PyTorch 2.10.0+cpu; `torch.version.cuda is None`; CUDA unavailable |
+
+## Production validation
+
+- Frontend is live on Vercel.
+- Express backend is live on Vercel.
+- Firebase Authentication and Cloud Firestore are connected.
+- FastAPI is live on Railway and ready on CPU.
+- OpenCLIP model: `ViT-B-32` with `laion2b_s34b_b79k` weights.
+- Catalog index: four products, normalized 512-dimensional embeddings.
+- Text search, image search, and multimodal search passed.
+- Similar Styles and personalized wishlist/cart recommendations passed.
+- Deterministic shopping-agent routing and confirmation workflow passed.
+- Frontend/backend/AI integration passed end to end.
+
+## Evaluation evidence
+
+The committed eight-query retrieval report contains P@1 1.0, P@3 0.333333, Recall@3 1.0, MRR 1.0, and NDCG@3 1.0.
+
+This is a manually labeled same-catalog evaluation over the four-product demonstration catalog, not a production benchmark or evidence of broad retrieval quality.
 
 ## Reviewed controls
 
-- Exact-origin CORS; Helmet; bounded bodies, images, topK, messages, context, and cart quantities.
-- Server-side Firebase verification and UID-derived ownership.
-- Generic internal errors and a logging policy excluding tokens, emails, profile fields, image bytes, and secrets.
-- Expiring, UID-bound, signed confirmation for agent mutations; production secret fails closed.
-- No random AI fallback; corrupt/mismatched index stays unavailable; catalog image paths cannot escape the repository.
-- Loading, empty, and controlled error states across major UI flows; semantic controls, labels, alt text, focus restoration, Escape close, visible focus, and reduced motion sanity-reviewed. This is not WCAG certification.
-
-## Automated and live evidence
-
-- Backend: lint, typecheck, build passed; 96/96 tests passed.
-- Frontend: lint, typecheck, build passed; 25/25 tests passed. Production output: 474.28 kB JS (141.47 kB gzip), 118.42 kB CSS (23.02 kB gzip), 1.09 kB HTML.
-- AI: 26/26 default tests and 2/2 real-model integration tests passed.
-- Data science: 9/9 tests passed; retrieval and recommendation/embedding scripts completed. Eight-query demonstration metrics remained P@1 1.0, P@3 0.333333, R@3 1.0, MRR 1.0, NDCG@3 1.0.
-- Browser: 124 automated Chromium checks; zero console errors, zero unexpected failed responses, and no mutation requests. The sole failed response was the intentional missing-product 404. This run covers routes, responsive layouts, keyboard/modal behaviors and signed-out flows; live provider popups and authenticated destructive flows were not repeated.
-- Live services: root health passed; AI status reported CPU, ready OpenCLIP model, four-product 512D compatible index.
-- Warm local CPU observations (three sequential requests, not benchmarks): text search 539.1/87.2/74.4 ms; image search 1364.7/326.7/263.2 ms. The first request in each series includes warm-up effects.
+- Exact-origin production CORS, Helmet, bounded bodies, uploads, and agent context.
+- Server-side Firebase ID-token verification and UID-derived ownership.
+- Generic public internal errors and logging that excludes credentials, tokens, emails, private profile fields, and image bytes.
+- Signed, expiring, UID-bound, single-use confirmation for agent mutations.
+- Canonical product resolution; unknown AI product IDs are not fabricated.
+- Index/model compatibility validation and repository-bound catalog image paths.
+- Honest cold start and deterministic recommendation reasons.
 
 ## Limitations
 
-Four concept products, one image each, small same-catalog relevance labels, no checkout/inventory/orders, distributed limiter or production monitoring, no Safari/Firefox/formal assistive-technology audit, and no deployed-host cold-start data.
+- Four products and one indexed image per product.
+- Same-catalog labels and a small query set.
+- CPU inference and possible free/serverless cold starts.
+- Two heavyweight real-model tests are outside the default safe suite.
+- No checkout, payments, inventory, orders, shipping, returns, collaborative filtering, distributed rate limiting, or production monitoring.
+- No claim of formal penetration testing, WCAG certification, SLA compliance, or production-scale performance.
